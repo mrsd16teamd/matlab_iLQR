@@ -9,18 +9,37 @@ NUM_CTRL = round(T / dt); % number of controls.
 
 % The dimension of the state space
 global X_DIM
+X_DIM = 6;
 
 % The dimension of the control space
 global U_DIM
+U_DIM = 2;
 
 % The step size for finite differencing
 global DEFAULTSTEPSIZE;
 DEFAULTSTEPSIZE = 0.01;
 
+x_start = zeros(X_DIM,1);
+
+% Stuff for debugging / checking intermediate trajectories
+global PENDULUM
+PENDULUM = 0;
+global PLOT 
+PLOT = 1;
+
+if PENDULUM
+    X_DIM = 2;
+    U_DIM = 1;
+    x_start = [0.1;0];
+end
+
 %% Initialize warmup trajectory
 Uc = ones(U_DIM, NUM_CTRL);
-Uc(1,:) = Uc(1,:) * 0.0;
-Uc(2,:) = Uc(2,:) * 3.0;
+Uc(1,:) = Uc(1,:) * 0.1; 
+
+if ~PENDULUM
+    Uc(2,:) = Uc(2,:) * 0.1; % original=3.0
+end
 
 x_null = zeros(X_DIM, 1);
 u_null = zeros(U_DIM, 1);
@@ -40,10 +59,17 @@ last_progress_made = 1;
 
 % Do forward pass to get current state Xc
 Xc = ForwardShoot(Uc, x_start, dt);
+
+if PLOT
+    plotForwardShoot(Xc);
+end
+    
 while (iter_num < max_iter_num)
     iter_num = iter_num + 1;
     
     % update f_x, f_u, l_x, l_u, l_xx, l_ux, l_uu
+    % f: dynamics function, gives rate of change of states
+    % l: running costs at each timestep, defined by cost function
     f_x = zeros(X_DIM, X_DIM, NUM_CTRL);
     f_u = zeros(X_DIM, U_DIM, NUM_CTRL);
     l = zeros(1, NUM_CTRL+1);
@@ -108,6 +134,10 @@ while (iter_num < max_iter_num)
     
     [Xn, Un] = ForwardShootOpt(Xc, Uc, k, K, x_start, dt);
     
+    if PLOT
+        plotForwardShoot(Xn);
+    end
+    
     Jc = calc_J(Xc, Uc);
     Jn = calc_J(Xn, Un);
     
@@ -119,7 +149,7 @@ while (iter_num < max_iter_num)
         Uc = Un;
         
         if (iter_num > 1 && (abs(Jn - Jc) / Jn) < eps_converge)
-            display('iLQR successful converged.\n')
+            display('iLQR successfully converged.\n')
             break;
         end
         
@@ -141,11 +171,3 @@ end
 
 
 %% The result will be in [Xc, Uc] upon successful convergence
-
-
-
-
-
-
-
-
