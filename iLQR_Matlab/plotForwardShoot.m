@@ -9,9 +9,22 @@ hold on
 
 % Car model
 if ~PENDULUM
+    % footprint
+    P = [-0.15  -0.15  0.15  0.15  -0.15; -0.08  0.08  0.08  -0.08  -0.08; 1 1 1 1 1];
+    
     x = X(1,:);
     y = X(2,:);
-    plot(x,y,'*','Color','b');
+    phi = wrapToPi(X(3,:));
+    % affine transform
+    A = [cos(phi(1)) -sin(phi(1)) x(1); sin(phi(1)) cos(phi(1)) y(1); 0 0 1];
+    pos = A*P;
+    plot(pos(1,:),pos(2,:),'Color','r');
+    axis equal
+    for i = 2:NUM_CTRL+1
+        A = [cos(phi(i)) -sin(phi(i)) x(i); sin(phi(i)) cos(phi(i)) y(i); 0 0 1];
+        pos = A*P;
+        plot(pos(1,:),pos(2,:),'Color','b');
+    end
 end
 
 % Pendulum model
