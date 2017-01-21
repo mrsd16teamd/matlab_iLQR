@@ -18,7 +18,7 @@ end
 if PENDULUM
     theta = X(1,:);
     theta = theta - pi/2;
-    axis([-1 1 -1 1]);
+    axis([-1 1 -1 1]); 
     plot(cos(theta(1)),sin(theta(1)),'o','MarkerSize',12,'Color', 'g');
     plot(cos(theta(end)),sin(theta(end)),'o','MarkerSize',12,'Color', 'b');
     plot([0,cos(theta(end))],[0,sin(theta(end))]);

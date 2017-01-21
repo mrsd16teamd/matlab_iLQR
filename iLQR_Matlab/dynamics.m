@@ -11,9 +11,10 @@ global PENDULUM;
 % % ----------------------------------------
 if PENDULUM
     g = 9.81;
-    l = 4;
+    l = 1;
+    m = 1;
 
-    dx = [x(2), -g/l * sin(x(1))+u];
+    dx = [x(2), -g/l*sin(x(1)) + 1/(m*l^2)*u];
 end
 
 
@@ -52,12 +53,12 @@ if ~PENDULUM
     % --------------Tire Dyanmics-------------
     % ----------------------------------------
     % longitudinal wheel slip K
-    K = (Ux_cmd-Ux)/abs(Ux); % when Ux=0, K=inf. But dealt with in tiredyn
+    K = (Ux_cmd-Ux)/abs(Ux); % when Ux=0, K=inf. But dealt with in tiredyn?
 
     % lateral slip angle alpha
     if Ux == 0 && Uy == 0   % vehicle is still no slip
         alpha_F = 0;
-        alpha_R = 0;
+        alpha_R = 0; 
     elseif Ux == 0      % perfect side slip
         alpha_F = pi/2*sign(Uy)-delta;
         alpha_R = pi/2*sign(Uy);
