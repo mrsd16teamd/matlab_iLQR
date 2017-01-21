@@ -52,8 +52,12 @@ if ~PENDULUM
     % --------------Tire Dyanmics-------------
     % ----------------------------------------
     % longitudinal wheel slip K
-    K = (Ux_cmd-Ux)/abs(Ux); % when Ux=0, K=inf. But dealt with in tiredyn
-
+    if (Ux_cmd == Ux)
+        K=0;
+    else
+        K = (Ux_cmd-Ux)/abs(Ux); % when Ux=0, K=inf. But dealt with in tiredyn
+    end
+        
     % lateral slip angle alpha
     if Ux == 0 && Uy == 0   % vehicle is still no slip
         alpha_F = 0;
