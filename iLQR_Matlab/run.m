@@ -29,9 +29,9 @@ x_start = zeros(X_DIM,1);
 
 % Stuff for debugging / checking intermediate trajectories
 global PENDULUM
-PENDULUM = 0;
+PENDULUM = 0; % Set this to 0 to use car model
 global PLOT 
-PLOT = 0;
+PLOT = 0;   
 
 if PENDULUM
     X_DIM = 2;
