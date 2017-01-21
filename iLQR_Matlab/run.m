@@ -31,7 +31,7 @@ x_start = zeros(X_DIM,1);
 global PENDULUM
 PENDULUM = 0; % Set this to 0 to use car model
 global PLOT 
-PLOT = 0;   
+PLOT = 1;   
 
 if PENDULUM
     X_DIM = 2;
@@ -41,10 +41,10 @@ end
 
 %% Initialize warmup trajectory
 Uc = ones(U_DIM, NUM_CTRL);
-Uc(1,:) = Uc(1,:) * 0.0; 
+Uc(1,:) = Uc(1,:) * 1.0; 
 
 if ~PENDULUM
-    Uc(2,:) = Uc(2,:) * 0.0; % original=3.0
+    Uc(2,:) = Uc(2,:) * 0.5; % original=3.0
 end
 
 x_null = zeros(X_DIM, 1);

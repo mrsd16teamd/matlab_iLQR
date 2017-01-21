@@ -1,7 +1,7 @@
 function plotForwardShoot(X)
 % plots trajectory of center of mass, given forward-shoot X
 % X size is (X_DIM, NUM_CTRL+1)
-
+global NUM_CTRL;
 global PENDULUM;
 
 plot(0,0,'o','Color','r','MarkerSize',12);
