@@ -1,8 +1,5 @@
 function [Fx,Fy] = tire_dyn(K, mu, Fz, C_x, C_alpha, alpha)
 %#codegen
-
-% TODO: Make this continuous somehow - add transition region with sigmoid?
-
     if K == -1
         K = -0.99;
     elseif abs(K) == Inf
