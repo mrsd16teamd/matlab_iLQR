@@ -3,12 +3,16 @@ function plotForwardShoot(X)
 % X size is (X_DIM, NUM_CTRL+1)
 global NUM_CTRL;
 global PENDULUM;
+global ANIM;
 
 plot(0,0,'o','Color','r','MarkerSize',12);
 hold on
 
 % Car model
 if ~PENDULUM
+    if ANIM
+        hold off
+    end
     % footprint
     P = [-0.15  -0.15  0.15  0.15  -0.15; -0.08  0.08  0.08  -0.08  -0.08; 1 1 1 1 1];
     
@@ -19,13 +23,36 @@ if ~PENDULUM
     A = [cos(phi(1)) -sin(phi(1)) x(1); sin(phi(1)) cos(phi(1)) y(1); 0 0 1];
     pos = A*P;
     plot(pos(1,:),pos(2,:),'Color','r');
+    axis([-3 3 -3 3])
     axis equal
-    for i = 2:3:NUM_CTRL+1
+    
+    if ANIM
+        step = 1;
+    else
+        step = 3;
+    end
+    
+    for i = 2:step:NUM_CTRL
         A = [cos(phi(i)) -sin(phi(i)) x(i); sin(phi(i)) cos(phi(i)) y(i); 0 0 1];
         pos = A*P;
         plot(pos(1,:),pos(2,:),'Color','b');
-        pause(0.05)
+
+        if ANIM
+            axis([-3 3 -3 3])
+            axis equal
+            drawnow
+        else
+            pause(0.1)
+        end
     end
+    
+    i = NUM_CTRL+1;
+    A = [cos(phi(i)) -sin(phi(i)) x(i); sin(phi(i)) cos(phi(i)) y(i); 0 0 1];
+    pos = A*P;
+    plot(pos(1,:),pos(2,:),'Color','g');
+    plot(x(i),y(i),'o','Color','g','MarkerSize',12);
+    axis([-3 3 -3 3])
+    axis equal
 end
 
 % Pendulum model
