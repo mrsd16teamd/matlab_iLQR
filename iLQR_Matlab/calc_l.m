@@ -19,11 +19,12 @@ if ~PENDULUM
     pos_y = x(2);
 
     pos = [pos_x; pos_y];
-    goal = [0; 1];
+    goal = [1; 0];
 
     Q = [1 0; 0 1];
     R = eye(size(goal,1))*1e-3;
 
+    % TODO Change cost function to keep trajectory near linearization point
     cost = (pos-goal)'*Q*(pos-goal); %;+ u'*R*u;
 end
 

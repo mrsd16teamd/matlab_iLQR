@@ -29,7 +29,7 @@ x_start = zeros(X_DIM,1);
 
 % Stuff for debugging / checking intermediate trajectories
 global PENDULUM
-PENDULUM = 0; % Set this to 0 to use car model
+PENDULUM = 1; % Set this to 0 to use car model
 global PLOT 
 PLOT = 1;   
 
@@ -44,7 +44,7 @@ Uc = ones(U_DIM, NUM_CTRL);
 Uc(1,:) = Uc(1,:) * 1.0; 
 
 if ~PENDULUM
-    Uc(2,:) = Uc(2,:) * 0.5; % original=3.0
+    Uc(2,:) = Uc(2,:) * 0.1; % original=3.0
 end
 
 x_null = zeros(X_DIM, 1);

@@ -20,10 +20,11 @@ if ~PENDULUM
     pos = A*P;
     plot(pos(1,:),pos(2,:),'Color','r');
     axis equal
-    for i = 2:NUM_CTRL+1
+    for i = 2:3:NUM_CTRL+1
         A = [cos(phi(i)) -sin(phi(i)) x(i); sin(phi(i)) cos(phi(i)) y(i); 0 0 1];
         pos = A*P;
         plot(pos(1,:),pos(2,:),'Color','b');
+        pause(0.1)
     end
 end
 
@@ -33,12 +34,15 @@ if PENDULUM
     theta = theta - pi/2;
     axis([-1 1 -1 1]); 
     plot(cos(theta(1)),sin(theta(1)),'o','MarkerSize',12,'Color', 'g');
+    for i = 2:5:NUM_CTRL+1
+        plot(cos(theta(i)),sin(theta(i)),'*','Color', 'k');
+        plot([0,cos(theta(i))],[0,sin(theta(i))],'--','Color','k');
+        pause(0.05)
+    end
     plot(cos(theta(end)),sin(theta(end)),'o','MarkerSize',12,'Color', 'b');
     plot([0,cos(theta(end))],[0,sin(theta(end))]);
-
-    plot(cos(theta),sin(theta),'*','Color', 'k');
 end
 
 hold off
-pause(1)
+pause(0.5)
 end
