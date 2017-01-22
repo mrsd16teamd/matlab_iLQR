@@ -17,15 +17,22 @@ global PENDULUM;
 if ~PENDULUM
     pos_x = x(1);
     pos_y = x(2);
+    vx    = x(3);
+    vy    = x(4);
 
-    pos = [pos_x; pos_y];
-    goal = [1; 0];
+    pos = [pos_x; pos_y; vx; vy];
+    goal = [1; 0; 0 ; 0];
 
-    Q = [1 0; 0 1];
+    Q = [1 0 0 0; 0 1 0 0; 0 0 0 0; 0 0 0 0.5];
     R = eye(size(goal,1))*1e-3;
 
     % TODO Change cost function to keep trajectory near linearization point
     cost = (pos-goal)'*Q*(pos-goal); %;+ u'*R*u;
+    
+    % Penalize trajectories that move too far away from linearization point
+    % cost = (1-alpha)*cost + alpha*((x-x_lin)^2 + (u-u_lin)^2);
+    % alpha close to 1
+    % Need to input linearization point as parameter; edit lots of places
 end
 
 % Pendulum test: try to get to upright

@@ -24,7 +24,7 @@ if ~PENDULUM
         A = [cos(phi(i)) -sin(phi(i)) x(i); sin(phi(i)) cos(phi(i)) y(i); 0 0 1];
         pos = A*P;
         plot(pos(1,:),pos(2,:),'Color','b');
-        pause(0.1)
+        pause(0.05)
     end
 end
 

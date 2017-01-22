@@ -29,7 +29,7 @@ x_start = zeros(X_DIM,1);
 
 % Stuff for debugging / checking intermediate trajectories
 global PENDULUM
-PENDULUM = 1; % Set this to 0 to use car model
+PENDULUM = 0; % Set this to 0 to use car model
 global PLOT 
 PLOT = 1;   
 
@@ -41,7 +41,7 @@ end
 
 %% Initialize warmup trajectory
 Uc = ones(U_DIM, NUM_CTRL);
-Uc(1,:) = Uc(1,:) * 1.0; 
+Uc(1,:) = Uc(1,:) * 0.2; 
 
 if ~PENDULUM
     Uc(2,:) = Uc(2,:) * 0.1; % original=3.0
@@ -148,8 +148,8 @@ while (iter_num < max_iter_num)
     end
     
     % TODO This code currently doesn't implement the "control-limited"
-    % part of the "Control-Limited DDP" paper. Try one of the three methods
-    % proposed in the paper.
+    % part of the "Control-Limited DDP" paper. Try implementing QP outlined
+    % in paper
     
     % TODO fix and integrate ForwardShootOptLineSearch? 
     % Using updated control gains, perform another forward pass
