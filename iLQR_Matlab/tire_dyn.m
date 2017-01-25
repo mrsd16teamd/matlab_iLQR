@@ -1,5 +1,15 @@
-function [Fx,Fy] = tire_dyn(K, mu, Fz, C_x, C_alpha, alpha)
+function [Fx,Fy] = tire_dyn(Ux, Ux_cmd, mu, Fz, C_x, C_alpha, alpha)
 %#codegen
+    % longitudinal wheel slip K
+    if (Ux_cmd == Ux)
+        K = 0;
+    elseif Ux == 0
+        Fx = sign(Ux_cmd)*mu*Fz;
+        Fy = 0;
+        return;
+    else
+        K = (Ux_cmd-Ux)/abs(Ux);
+    end
 
 % TODO: Make this continuous somehow - add transition region with sigmoid?
     % instead of avoiding K=-1, now look for positive equivalent
@@ -7,11 +17,6 @@ function [Fx,Fy] = tire_dyn(K, mu, Fz, C_x, C_alpha, alpha)
     if K < 0
         reverse = -1;
         K = abs(K);
-    elseif abs(K) == Inf
-        % Fx = sign(K)*mu*0.9*Fz;
-        Fx = sign(K)*mu*Fz;
-        Fy = 0;
-        return;
     end
     
     % alpha > pi/2 cannot be adapted to this formula
