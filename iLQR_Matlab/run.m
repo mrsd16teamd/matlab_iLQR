@@ -8,7 +8,7 @@ clear all;
 
 % The planning horizon
 T = 5;
-dt = 0.1;
+dt = 0.1;  
 
 global NUM_CTRL;
 NUM_CTRL = round(T / dt); % number of controls.
@@ -31,9 +31,9 @@ x_start = zeros(X_DIM,1);
 global PENDULUM
 PENDULUM = 0; % Set this to 0 to use car model
 global PLOT 
-PLOT = 1; 
+PLOT = 0; 
 global ANIM
-ANIM = 1; % Animation switch
+ANIM = 0; % Animation switch
 
 if PENDULUM
     X_DIM = 2;
@@ -43,10 +43,10 @@ end
 
 %% Initialize warmup trajectory
 Uc = ones(U_DIM, NUM_CTRL);
-Uc(1,:) = Uc(1,:) * 0.2; 
+Uc(1,:) = Uc(1,:) * 0.3; 
 
 if ~PENDULUM
-    Uc(2,:) = Uc(2,:) * 0.01; % original=3.0
+    Uc(2,:) = Uc(2,:) * 0.1; % original=3.0
 end
 
 x_null = zeros(X_DIM, 1);
@@ -173,7 +173,7 @@ while (iter_num < max_iter_num)
         Uc = Un;
         
         if (iter_num > 1 && (abs(Jn - Jc) / Jn) < eps_converge)
-            display('iLQR successfully converged.\n')
+            display('iLQR successfully converged.')
             break;
         end
         
@@ -187,7 +187,7 @@ while (iter_num < max_iter_num)
         Xc = Xc;
         Uc = Uc;
         if (lamb > lamb_max)
-            display('iLQR failed to converge.\n')
+            display('iLQR failed to converge.')
             break;
         end
         
@@ -197,3 +197,4 @@ end
 
 
 %% The result will be in [Xc, Uc] upon successful convergence
+% generateOutput(dt, Uc)

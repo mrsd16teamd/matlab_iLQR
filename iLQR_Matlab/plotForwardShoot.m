@@ -64,7 +64,7 @@ if PENDULUM
     for i = 2:5:NUM_CTRL+1
         plot(cos(theta(i)),sin(theta(i)),'*','Color', 'k');
         plot([0,cos(theta(i))],[0,sin(theta(i))],'--','Color','k');
-        pause(0.05)
+        pause(0.01)
     end
     plot(cos(theta(end)),sin(theta(end)),'o','MarkerSize',12,'Color', 'b');
     plot([0,cos(theta(end))],[0,sin(theta(end))]);

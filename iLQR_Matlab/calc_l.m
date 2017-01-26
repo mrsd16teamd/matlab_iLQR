@@ -17,13 +17,14 @@ global PENDULUM;
 if ~PENDULUM
     pos_x = x(1);
     pos_y = x(2);
-    vx    = x(3);
-    vy    = x(4);
+    vx    = x(4);
+    vy    = x(5);
+    r     = x(6);
 
-    pos = [pos_x; pos_y; vx; vy];
-    goal = [1; 0; 0 ; 0];
+    pos = [pos_x; pos_y; vx; vy; r];
+    goal = [1; 0 ; 0; 0 ; 0];
 
-    Q = [1 0 0 0; 0 1 0 0; 0 0 0 0; 0 0 0 0.5];
+    Q = eye(size(goal,1));
     R = eye(size(goal,1))*1e-3;
 
     % TODO Change cost function to keep trajectory near linearization point
