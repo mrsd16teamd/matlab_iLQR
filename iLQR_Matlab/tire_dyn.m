@@ -1,6 +1,6 @@
-function [Fx,Fy] = tire_dyn(Ux, Ux_cmd, mu, Fz, C_x, C_alpha, alpha)
+function [Fx,Fy] = tire_dyn_test(Ux, Ux_cmd, mu, mu_slide, Fz, C_x, C_alpha, alpha)
 %#codegen
-    % longitudinal wheel slip K
+    % longitude wheel slip
     if (Ux_cmd == Ux)
         K = 0;
     elseif Ux == 0
@@ -10,9 +10,8 @@ function [Fx,Fy] = tire_dyn(Ux, Ux_cmd, mu, Fz, C_x, C_alpha, alpha)
     else
         K = (Ux_cmd-Ux)/abs(Ux);
     end
-
-% TODO: Make this continuous somehow - add transition region with sigmoid?
-    % instead of avoiding K=-1, now look for positive equivalent
+    
+    % instead of avoiding -1, now look for positive equivalent
     reverse = 1;
     if K < 0
         reverse = -1;
@@ -31,8 +30,7 @@ function [Fx,Fy] = tire_dyn(Ux, Ux_cmd, mu, Fz, C_x, C_alpha, alpha)
         F = gamma - 1/(3*mu*Fz)*gamma^2 + 1/(27*mu^2*Fz^2)*gamma^3;
     else
         % more accurate modeling with peak friction value
-        % F = (mu*0.9 + (0.1*mu)/(1 + ((gamma-3*mu*Fz)/9)^2))*Fz;
-        F = mu*Fz;
+        F = (mu_slide + (mu-mu_slide)/(1 + ((gamma-3*mu*Fz)/27)^2))*Fz;
     end
     
     if gamma == 0

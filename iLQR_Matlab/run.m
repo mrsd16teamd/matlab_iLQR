@@ -8,7 +8,7 @@ clear all;
 
 % The planning horizon
 T = 5;
-dt = 0.1;
+dt = 0.05;
 
 global NUM_CTRL;
 NUM_CTRL = round(T / dt); % number of controls.
@@ -23,7 +23,7 @@ U_DIM = 2;
 
 % The step size for finite differencing
 global DEFAULTSTEPSIZE;
-DEFAULTSTEPSIZE = 0.01;
+DEFAULTSTEPSIZE = 0.05;
 
 x_start = zeros(X_DIM,1);
 
@@ -33,7 +33,7 @@ PENDULUM = 0; % Set this to 0 to use car model
 global PLOT 
 PLOT = 1; 
 global ANIM
-ANIM = 1; % Animation switch
+ANIM = 0; % Animation switch
 
 if PENDULUM
     X_DIM = 2;
@@ -43,10 +43,10 @@ end
 
 %% Initialize warmup trajectory
 Uc = ones(U_DIM, NUM_CTRL);
-Uc(1,:) = Uc(1,:) * 0.2; 
+Uc(1,:) = Uc(1,:) * 1.0; 
 
 if ~PENDULUM
-    Uc(2,:) = Uc(2,:) * 0.01; % original=3.0
+    Uc(2,:) = Uc(2,:) * 0.1; % original=3.0
 end
 
 x_null = zeros(X_DIM, 1);

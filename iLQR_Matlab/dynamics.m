@@ -23,17 +23,18 @@ if ~PENDULUM
     % ----------------------------------------
     % --------------Model Params--------------
     % ----------------------------------------
-    m = 2.622;          % mass (kg)
-    L = 0.255;          % wheelbase (m)
-    a = 0.1329;         % CoG to front axle
-    b = 0.1221;         % CoG to rear axle
-    mu = 0.37;          % friction coeffcient
-    C_alpha = 120000;   % laternal stiffness
-    C_x = 120000;       % longitude stiffness
-    Iz = 0.05; %0.020899525;   % rotational inertia
+    m = 2.35;           % mass (kg)
+    L = 0.257;          % wheelbase (m)
+    C_alpha = 300;      % laternal stiffness
+    C_x = 330;          % longitude stiffness
+    Iz = 0.015;          %0.020899525;   % roatation inertia
     g = 9.81;     
-    G_front = m*g*(a/L);% calculated load or specify front rear load directly
-    G_rear = m*g*(b/L);
+    G_front = 1.25*g;   % calculated load or specify front rear load directly
+    G_rear = 1.10*g;
+    a = G_rear/(m*g)*L;         % CoG to front axle
+    b = G_front/(m*g)*L;         % CoG to rear axle
+    mu = 5.2/G_rear;   
+    mu_slide = 4.4/G_rear;    
 
     % ----------------------------------------
     % ------States/Inputs Interpretation------
@@ -55,7 +56,7 @@ if ~PENDULUM
     % lateral slip angle alpha
     if Ux == 0 && Uy == 0   % vehicle is still no slip
         alpha_F = 0;
-        alpha_R = 0; 
+        alpha_R = 0;
     elseif Ux == 0      % perfect side slip
         alpha_F = pi/2*sign(Uy)-delta;
         alpha_R = pi/2*sign(Uy);
@@ -71,11 +72,11 @@ if ~PENDULUM
     alpha_F = wrapToPi(alpha_F);
     alpha_R = wrapToPi(alpha_R);
 
-    [Fxf,Fyf] = tire_dyn(Ux, Ux, mu, G_front, C_x, C_alpha, alpha_F);
-    [Fxr,Fyr] = tire_dyn(Ux, Ux_cmd, mu, G_rear, C_x, C_alpha, alpha_R);
-    
+    [Fxf,Fyf] = tire_dyn(Ux, Ux, mu, mu_slide, G_front, C_x, C_alpha, alpha_F);
+    [Fxr,Fyr] = tire_dyn(Ux, Ux_cmd, mu, mu_slide, G_rear, C_x, C_alpha, alpha_R);
+
     % ----------------------------------------
-    % ------------Vehicle Dynamics------------
+    % ------------Vehicle Dyanmics------------
     % ----------------------------------------
     % ddx
     r_dot = (a*Fyf*cos(delta)-b*Fyr)/Iz;
@@ -99,8 +100,7 @@ if ~PENDULUM
 
     Ux_terrain = U*cos(beta+pos_phi);
     Uy_terrain = U*sin(beta+pos_phi);
-
-    dx = [Ux_terrain, Uy_terrain, r, Ux_dot, Uy_dot, r_dot];
+    dx = [Ux_terrain,Uy_terrain,r,Ux_dot,Uy_dot,r_dot];
 end % end car model
     
 end % end function
