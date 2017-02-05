@@ -27,14 +27,16 @@ if ~PENDULUM
     L = 0.257;          % wheelbase (m)
     C_alpha = 300;      % laternal stiffness
     C_x = 330;          % longitude stiffness
-    Iz = 0.015;          %0.020899525;   % roatation inertia
+    Iz = 0.02065948883; % roatation inertia
     g = 9.81;     
-    G_front = 1.25*g;   % calculated load or specify front rear load directly
-    G_rear = 1.10*g;
-    a = G_rear/(m*g)*L;         % CoG to front axle
-    b = G_front/(m*g)*L;         % CoG to rear axle
+
+    b = 0.14328;        % CoG to rear axle
+    a = L-b;            % CoG to front axle
+
+    G_front = m*g*b/L;   % calculated load or specify front rear load directly
+    G_rear = m*g*a/L;
     mu = 5.2/G_rear;   
-    mu_slide = 4.4/G_rear;    
+    mu_spin = 4.3/G_rear;  
 
     % ----------------------------------------
     % ------States/Inputs Interpretation------
@@ -72,8 +74,8 @@ if ~PENDULUM
     alpha_F = wrapToPi(alpha_F);
     alpha_R = wrapToPi(alpha_R);
 
-    [Fxf,Fyf] = tire_dyn(Ux, Ux, mu, mu_slide, G_front, C_x, C_alpha, alpha_F);
-    [Fxr,Fyr] = tire_dyn(Ux, Ux_cmd, mu, mu_slide, G_rear, C_x, C_alpha, alpha_R);
+    [Fxf,Fyf] = tire_dyn(Ux, Ux, mu, mu_spin, G_front, C_x, C_alpha, alpha_F);
+    [Fxr,Fyr] = tire_dyn(Ux, Ux_cmd, mu, mu_spin, G_rear, C_x, C_alpha, alpha_R);
 
     % ----------------------------------------
     % ------------Vehicle Dyanmics------------
