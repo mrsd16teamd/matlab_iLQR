@@ -41,8 +41,6 @@ if ~PENDULUM
             axis([-3 3 -3 3])
             axis equal
             drawnow
-        else
-            pause(0.1)
         end
     end
     

@@ -23,7 +23,7 @@ U_DIM = 2;
 
 % The step size for finite differencing
 global DEFAULTSTEPSIZE;
-DEFAULTSTEPSIZE = 0.01;
+DEFAULTSTEPSIZE = 0.05;
 
 x_start = zeros(X_DIM,1);
 
