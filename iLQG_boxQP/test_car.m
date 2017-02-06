@@ -1,4 +1,4 @@
-function demo_car
+function test_car
 % A demo of iLQG/DDP with car-parking dynamics
 clc;
 close all
@@ -15,13 +15,13 @@ full_DDP = false;
 
 % set up the optimization problem
 DYNCST  = @(x,u,i) car_dyn_cst(x,u,full_DDP);
-T       = 500;              % horizon
+T       = 400;              % horizon
 x0      = [0;0;0;1;0;0];   % initial state
 u0      = .01*randn(2,T);    % initial controls
 global x_des;
-x_des = [2;2;pi/2;0;0;0];
+x_des = [2;2;0;0;0;0];
 Op.lims  = [-1 5;
-             -0.5  0.5];
+             -0.85  0.85];
 Op.plot = -1;               % plot the derivatives as well
 
 % prepare the visualization window and graphics callback
@@ -39,9 +39,10 @@ tar_y = x_des(2);
 tar_phi = wrapToPi(x_des(3));
 A = [cos(tar_phi) -sin(tar_phi) tar_x; sin(tar_phi) cos(tar_phi) tar_y; 0 0 1];
 tar = A*P;
-plot(tar(1,:),tar(2,:));
-axis([-3, 3, -3, 3])
 axis auto equal
+axis([-2, 3, -2, 3])
+line(P(1,:),P(2,:),'color','b','linewidth',2);
+line(tar(1,:),tar(2,:),'color','b','linewidth',2);
 
 % prepare and install trajectory visualization callback
 line_handle = line([0 0],[0 0],'color','b','linewidth',2);
@@ -62,7 +63,7 @@ W = [-0.03  -0.03  0.03  0.03  -0.03; -0.015  0.015  0.015  -0.015  -0.015; 1 1 
 CoG = [0;0;1]
 r_axle = [-0.15;0;1]
 h = animatedline(P(1,:),P(2,:));
-axis([-3, 3, -3, 3])
+axis([-5, 5, -5, 5])
 axis auto equal
 
 if show_traj_cog
@@ -148,16 +149,16 @@ function c = car_cost(x, u)
 % lu: quadratic cost on controls
 % lf: final cost on distance from target parking configuration
 % lx: running cost on distance from origin to encourage tight turns
-global x_des;
+global x_des
 final = isnan(u(1,:));
 u(:,final)  = 0;
 
 cu  = 1e-1*[.01 .1];         % control cost coefficients
 
-cf  = [ 1  1  1 .3 .1 .1];    % final cost coefficients
-pf  = [ 10  10 1  1 1 1]';    % smoothness scales for final cost
+cf  = [ 10 10 .3 .1 .1 .1];    % final cost coefficients
+pf  = [ 10 10 1  1 1 1]';    % smoothness scales for final cost
 
-cx  = 1e-2*[1  1 0.5];          % running cost coefficients
+cx  = 1e-1*[1  1 0.8];          % running cost coefficients
 px  = [1 1 1]';             % smoothness scales for running cost
 
 % control cost
