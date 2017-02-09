@@ -16,13 +16,13 @@ full_DDP = false;
 % set up the optimization problem
 DYNCST  = @(x,u,i) car_dyn_cst(x,u,full_DDP);
 global T;
-T       = 80;              % horizon
+T       = 40;              % horizon
 global dt;
-dt      = 0.025;
+dt      = 0.05;
 x0      = [0;0;0;1;0;0;0;0;0;0];   % initial state
-u0      = .01*randn(2,T);    % initial controls
+u0      = .1*randn(2,T);;    % initial controls
 global x_des;
-x_des = [2;2;0;0;0;0;0;0;0;0];
+x_des = [2.5;1.5;pi/2;0;0;0;0;0;0;0];
 Op.lims  = [-1 4;
              -0.8  0.8];
 Op.plot = 0;               % plot the derivatives as well
@@ -100,17 +100,18 @@ function c = car_cost(x, u)
 % lf: final cost on distance from target parking configuration
 % lx: running cost on distance from origin to encourage tight turns
 global x_des
+
 final = isnan(u(1,:));
 u(:,final)  = 0;
 
-cu  = 1e-2*[.01 .01];         % control cost coefficients
+cu  = 1e-2*[.1 .1];         % control cost coefficients
 cdu = 1e-1*[.01 1];         % change in control cost coefficients
 
 cf  = [ 10 10 1 .1 .1 .1];    % final cost coefficients
-pf  = [ 1 1 1  1 1 1]';    % smoothness scales for final cost
+pf  = [ .01 .01 .1 .1 .1 .1]';    % smoothness scales for final cost
 
 cx  = 1e-2*[1  1 0.8];          % running cost coefficients
-px  = [1 1 1]';             % smoothness scales for running cost
+px  = [.01 .01 .1]';             % smoothness scales for running cost
 
 % control cost
 lu    = cu*u.^2;
@@ -133,10 +134,10 @@ lx = cx*sabs(dist,px);
 % lx = cx*sabs(x(1:2,:),px);
 
 % drift prize
-% ld = -0.001*sabs(x(5,:),1);
+ld = -0.001*(sabs(x(5,:),1)-0.2);
 
 % total cost
-c     = lu + lf + lx + ldu;% + ld;
+c     = lu + lf + lx + ldu + ld;
 end
 
 function y = sabs(x,p)
@@ -249,8 +250,9 @@ if show_wheels
     rl = animatedline(trl(1,:),trl(2,:));
 end
 
+u(:,size(x,2))=[0;0];
 tic
-for i=1:size(u,2)
+for i=1:size(x,2)
     % ----------------------------------------
     % ----------Update Visualization----------
     % ----------------------------------------
