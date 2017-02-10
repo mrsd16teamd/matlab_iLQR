@@ -1,4 +1,4 @@
-function [dx] = dynamics(x, u)
+function [dx] = dynamics(x, u, params)
 % Drifting dynamics developed based on 
 % Dynamics And Control Of Drifting In Automobiles, Hindiyeh 2013
 
@@ -22,6 +22,15 @@ G_front = m*g*b/L;   % calculated load or specify front rear load directly
 G_rear = m*g*a/L;
 mu = 5.2/G_rear;   
 mu_spin = 4.3/G_rear;    
+
+if (nargin == 3)
+    % params = [C_alpha, C_x, Iz, mu, mu_spin]
+    C_alpha = params(1);
+    C_x = params(2);
+    Iz = params(3);
+    mu = params(4);
+    mu_spin = params(5);
+end
 
 % ----------------------------------------
 % ------States/Inputs Interpretation------
