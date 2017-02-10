@@ -230,11 +230,6 @@ for i=1:size(u,2)
     a = tic;
     drawnow; 
     
-    k1 = dynamics(x, u(:,i), param);
-    k2 = dynamics(x + 0.5 * dt * k1, u(:,i), param);
-    k3 = dynamics(x + 0.5 * dt * k2, u(:,i), param);
-    k4 = dynamics(x + dt * k3, u(:,i), param);
-    new_x = x + (dt / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4);
-    x = new_x;
+    x = dynamics_finite(x,u(:,i),dt,param);
 end
 end

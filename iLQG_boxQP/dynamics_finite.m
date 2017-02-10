@@ -2,7 +2,7 @@ function [ x_new ] = dynamics_finite( x, u, dt, params)
 %DYNAMICS_FINITE Runge-Kutta integration to discretize dynamics
 %   Detailed explanation goes here
 
-if ~exist('param','var')
+if ~exist('params','var')
     k1 = dynamics(x, u);
     k2 = dynamics(x + 0.5 * dt * k1, u);
     k3 = dynamics(x + 0.5 * dt * k2, u);
