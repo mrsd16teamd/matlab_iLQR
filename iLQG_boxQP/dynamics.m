@@ -1,4 +1,5 @@
 function [dx] = dynamics(x, u, params)
+
 % Drifting dynamics developed based on 
 % Dynamics And Control Of Drifting In Automobiles, Hindiyeh 2013
 
@@ -9,19 +10,17 @@ function [dx] = dynamics(x, u, params)
 % --------------Model Params--------------
 % ----------------------------------------
 m = 2.35;           % mass (kg)
+g = 9.81;
 L = 0.257;          % wheelbase (m)
-C_alpha = 300;      % laternal stiffness
-C_x = 330;          % longitude stiffness
-Iz = 0.02065948883; % roatation inertia
-g = 9.81;     
-
 b = 0.14328;        % CoG to rear axle
 a = L-b;            % CoG to front axle
-
 G_front = m*g*b/L;   % calculated load or specify front rear load directly
 G_rear = m*g*a/L;
 mu = 5.2/G_rear;   
-mu_spin = 4.3/G_rear;    
+mu_spin = 4.3/G_rear; 
+C_x = 330;          % longitude stiffness
+C_alpha = 300;      % laternal stiffness
+Iz = 0.02065948883; % roatation inertia
 
 if (nargin == 3)
     % params = [C_alpha, C_x, Iz, mu, mu_spin]
@@ -96,5 +95,5 @@ beta = wrapToPi(beta);
 
 Ux_terrain = U*cos(beta+pos_phi);
 Uy_terrain = U*sin(beta+pos_phi);
-dx = [Ux_terrain,Uy_terrain,r,Ux_dot,Uy_dot,r_dot];
+dx = [Ux_terrain;Uy_terrain;r;Ux_dot;Uy_dot;r_dot];
 end

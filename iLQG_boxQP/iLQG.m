@@ -311,7 +311,7 @@ for iter = 1:Op.maxIter
         x              = xnew;
         cost           = costnew;
         flgChange      = 1;
-        Op.plotFn(x);
+        stop = Op.plotFn(x);
         
         % terminate ?
         if dcost < Op.tolFun
@@ -348,7 +348,7 @@ for iter = 1:Op.maxIter
     trace(iter).improvement = dcost;
     trace(iter).cost        = sum(cost(:));
     trace(iter).reduc_ratio = z;
-    stop = graphics(Op.plot,x,u,cost,L,Vx,Vxx,fx,fxx,fu,fuu,trace(1:iter),0);
+    stop = stop || graphics(Op.plot,x,u,cost,L,Vx,Vxx,fx,fxx,fu,fuu,trace(1:iter),0);
 end
 
 % save lambda/dlambda
