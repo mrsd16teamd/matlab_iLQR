@@ -16,17 +16,14 @@ pause(2) % Wait to ensure publisher is registered
 %% Publish Twist messages
 % Frequency same as traj data
 
-% tic
 for i=1:size(u,2)
     finalTime = datenum(clock + [0, 0, 0, 0, 0, dt]);
+    msg.Linear.X = u(1,i);
+    msg.Angular.Z = u(2,i);
     while datenum(clock) < finalTime
-        msg.Linear.X = u(1,i);
-        msg.Angular.Z = u(2,i);
         send(twist_chatpub,msg);
     end
-%     pause(dt-toc) 
 end
-% toc
 
 %% Shut down global node
 
