@@ -17,27 +17,27 @@ plot_setup();
 title('rerun')
 plot_default();
 
-param = [0.51,0.42,330,300,0.020];
+param = [330,300,0.020,0.51,0.42];
 title('simple param')
 plot_rerun(param);
 
-param = [0.42,0.42,330,300,0.020];
+param = [330,300,0.020,0.42,0.42];
 title('low friction')
 plot_rerun(param);
 
-param = [0.51,0.51,330,300,0.020];
+param = [330,300,0.020,0.51,0.51];
 title('high friction')
 plot_rerun(param);
 
-param = [0.50,0.43,330,300,0.035];
+param = [330,300,0.035,0.50,0.43];
 title('high inertia')
 plot_rerun(param);
 
-param = [0.50,0.43,330,300,0.016];
+param = [330,300,0.016,0.50,0.43];
 title('low inertia')
 plot_rerun(param);
 
-param = [0.50,0.43,3030,3000,0.020];
+param = [3030,3000,0.020,0.50,0.43];
 title('high stiffness')
 plot_rerun(param);
 
