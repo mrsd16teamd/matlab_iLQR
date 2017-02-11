@@ -39,7 +39,22 @@ end
 %     end
 % end
 
-
+%% Figure of 8 drifting
+ 
+for i=1:size(u,2)
+    twist_msg.Angular.Z =-1;
+    vesc_msg.Data = -1664*4;
+    send(twist_chatpub,twist_msg);
+    send(vesc_chatpub,vesc_msg);
+    pause(dt/2)
+end
+for i=1:size(u,2)
+    twist_msg.Angular.Z =1;
+    vesc_msg.Data = -1664*4;
+    send(twist_chatpub,twist_msg);
+    send(vesc_chatpub,vesc_msg);
+    pause(dt/2)
+end
 
 %% Shut down global node
 
