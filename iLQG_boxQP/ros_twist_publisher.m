@@ -56,6 +56,21 @@ for i=1:size(u,2)
     pause(dt/2)
 end
 
+%% SysID experiment: 
+%  Tire Stiffness (Steering ramp)
+ 
+time_horizon = 5;
+steer_angles = linspace(0,0.96,time_horizon/dt);
+vesc_msg.Data = -1664*0.5;  % Vx
+ 
+for i=1:length(steer_angles)
+    twist_msg.Angular.Z = steer_angles(i);
+    send(twist_chatpub,twist_msg);
+    send(vesc_chatpub,vesc_msg);
+    pause(dt)
+end
+
+
 %% Shut down global node
 
 rosshutdown
