@@ -17,27 +17,27 @@ plot_setup();
 title('rerun')
 plot_default();
 
-param = [0.51,0.42,330,300,0.020];
+param = [330,300,0.020,0.51,0.42];
 title('simple param')
 plot_rerun(param);
 
-param = [0.42,0.42,330,300,0.020];
+param = [330,300,0.020,0.42,0.42];
 title('low friction')
 plot_rerun(param);
 
-param = [0.51,0.51,330,300,0.020];
+param = [330,300,0.020,0.51,0.51];
 title('high friction')
 plot_rerun(param);
 
-param = [0.50,0.43,330,300,0.035];
+param = [330,300,0.035,0.50,0.43];
 title('high inertia')
 plot_rerun(param);
 
-param = [0.50,0.43,330,300,0.016];
+param = [330,300,0.016,0.50,0.43];
 title('low inertia')
 plot_rerun(param);
 
-param = [0.50,0.43,3030,3000,0.020];
+param = [3030,3000,0.020,0.50,0.43];
 title('high stiffness')
 plot_rerun(param);
 
@@ -230,11 +230,6 @@ for i=1:size(u,2)
     a = tic;
     drawnow; 
     
-    k1 = dynamics(x, u(:,i), param);
-    k2 = dynamics(x + 0.5 * dt * k1, u(:,i), param);
-    k3 = dynamics(x + 0.5 * dt * k2, u(:,i), param);
-    k4 = dynamics(x + dt * k3, u(:,i), param);
-    new_x = x + (dt / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4);
-    x = new_x;
+    x = dynamics_finite(x,u(:,i),dt,param);
 end
 end

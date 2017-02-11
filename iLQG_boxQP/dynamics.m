@@ -22,7 +22,7 @@ C_x = 330;          % longitude stiffness
 C_alpha = 300;      % laternal stiffness
 Iz = 0.02065948883; % roatation inertia
 
-if (nargin == 3)
+if exist('params','var')
     % params = [C_alpha, C_x, Iz, mu, mu_spin]
     C_alpha = params(1);
     C_x = params(2);

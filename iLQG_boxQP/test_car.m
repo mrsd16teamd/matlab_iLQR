@@ -78,19 +78,15 @@ x = X(1:6,:);
 pu = X(7:8,:);
 
 global dt;
-k1 = zeros(6,s);
-k2 = zeros(6,s);
-k3 = zeros(6,s);
-k4 = zeros(6,s);
+new_x = zeros(6,s);
 
 for i = 1:size(x,2)
-    k1(:,i) = dynamics(x(:,i), u(:,i));
-    k2(:,i) = dynamics(x(:,i) + 0.5 * dt * k1(:,i), u(:,i));
-    k3(:,i) = dynamics(x(:,i) + 0.5 * dt * k2(:,i), u(:,i));
-    k4(:,i) = dynamics(x(:,i) + dt * k3(:,i), u(:,i));
+    new_x(:,i) = dynamics_finite(x(:,i), u(:,i), dt);
+%     sol = ode23(@(t,y) dynamics(y,u(:,i)),[0 dt], x(:,1));
+%     new_x(:,i) = sol.y(:,end);
 end
 du = u - pu;
-y = [x + (dt / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4); u; du];
+y = [new_x; u; du];
 end
 
 function c = car_cost(x, u)
