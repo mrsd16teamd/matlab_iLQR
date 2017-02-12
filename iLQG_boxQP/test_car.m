@@ -20,7 +20,7 @@ T       = 40;              % horizon
 global dt;
 dt      = 0.05;
 x0      = [0;0;0;1;0;0;0;0;0;0];   % initial state
-u0      = .1*randn(2,T);;    % initial controls
+u0      = .1*randn(2,T);    % initial controls
 global x_des;
 x_des = [2.5;1.5;pi/2;0;0;0;0;0;0;0];
 Op.lims  = [-1 4;
@@ -56,7 +56,8 @@ Op.plotFn = plotFn;
 [x,u]= iLQG(DYNCST, x0, u0, Op);
 car_plot(x,u);
 
-save('traj.mat','x','u','x0','x_des','dt');
+file_name = ['traj',datestr(now,'_mm-dd-yy_HH:MM')];
+save(['saved_trajectories/',file_name,'.mat'],'x','u','x0','x_des','dt','T');
 end
 
 function stop = traj_plot(x,line_handle)
@@ -87,58 +88,6 @@ for i = 1:size(x,2)
 end
 du = u - pu;
 y = [new_x; u; du];
-end
-
-function c = car_cost(x, u)
-% cost function for car-parking problem
-% sum of 3 terms:
-% lu: quadratic cost on controls
-% lf: final cost on distance from target parking configuration
-% lx: running cost on distance from origin to encourage tight turns
-global x_des
-
-final = isnan(u(1,:));
-u(:,final)  = 0;
-
-cu  = 1e-2*[.1 .1];         % control cost coefficients
-cdu = 1e-1*[.01 1];         % change in control cost coefficients
-
-cf  = [ 10 10 1 .1 .1 .1];    % final cost coefficients
-pf  = [ .01 .01 .1 .1 .1 .1]';    % smoothness scales for final cost
-
-cx  = 1e-2*[1  1 0.8];          % running cost coefficients
-px  = [.01 .01 .1]';             % smoothness scales for running cost
-
-% control cost
-lu    = cu*u.^2;
-ldu   = 100*cdu*x(9:10,:).^2; %cdu*x(9:10,:).^2; Smoother curve?
-
-% final cost
-if any(final)
-   dist = bsxfun(@minus,x(1:6,final),x_des(1:6));
-   llf      = cf*(sabs(dist,pf)+sabs(dist,pf).^2);
-%    llf      = cf*sabs(x(:,final),pf);
-   lf       = double(final);
-   lf(final)= llf;
-else
-   lf    = 0;
-end
-
-% running cost
-dist = bsxfun(@minus,x(1:3,:),x_des(1:3));
-lx = cx*sabs(dist,px);
-% lx = cx*sabs(x(1:2,:),px);
-
-% drift prize
-ld = -0.001*(sabs(x(5,:),1)-0.2);
-
-% total cost
-c     = lu + lf + lx + ldu + ld;
-end
-
-function y = sabs(x,p)
-% smooth absolute-value function (a.k.a pseudo-Huber)
-y = pp( sqrt(pp(x.^2,p.^2)), -p);
 end
 
 function [f,c,fx,fu,fxx,fxu,fuu,cx,cu,cxx,cxu,cuu] = car_dyn_cst(x,u,full_DDP)
@@ -210,87 +159,6 @@ J       = pp(Y(:,:,2:end), -Y(:,:,1)) / h;
 J       = permute(J, [1 3 2]);
 end
 
-% ======== graphics functions ========
-function car_plot(x,u)
-global T;
-% animate the resulting trajectory
-show_traj_cog = 1;
-show_traj_r = 1;
-show_wheels = 1;
-
-figure(9)
-P = [-0.15  -0.15  0.15  0.15  -0.15; -0.08  0.08  0.08  -0.08  -0.08; 1 1 1 1 1];
-W = [-0.03  -0.03  0.03  0.03  -0.03; -0.015  0.015  0.015  -0.015  -0.015; 1 1 1 1 1];
-CoG = [0;0;1];
-r_axle = [-0.15;0;1];
-h = animatedline(P(1,:),P(2,:));
-axis([-5, 5, -5, 5])
-axis auto equal
-
-if show_traj_cog
-    traj_cog = animatedline(CoG(1,:),CoG(2,:),'Color','g');
-end
-
-if show_traj_r
-    traj_r = animatedline(r_axle(1,:),r_axle(2,:),'Color','r');
-end
-
-if show_wheels
-    tfr = [1 0 0.135; 0 1 -0.08; 0 0 1]*W;
-    fr = animatedline(tfr(1,:),tfr(2,:));
-    tfl = [1 0 0.135; 0 1 0.08; 0 0 1]*W;
-    fl = animatedline(tfl(1,:),tfl(2,:));
-    trr = [1 0 -0.135; 0 1 -0.08; 0 0 1]*W;
-    rr = animatedline(trr(1,:),trr(2,:));
-    trl = [1 0 -0.135; 0 1 0.08; 0 0 1]*W;
-    rl = animatedline(trl(1,:),trl(2,:));
-end
-
-u(:,size(x,2))=[0;0];
-tic
-for i=1:size(x,2)
-    % ----------------------------------------
-    % ----------Update Visualization----------
-    % ----------------------------------------
-    pos_x = x(1,i);
-    pos_y = x(2,i);
-    pos_phi = wrapToPi(x(3,i));
-    A = [cos(pos_phi) -sin(pos_phi) pos_x; sin(pos_phi) cos(pos_phi) pos_y; 0 0 1];
-    pos = A*P;
-    CoG_n = A*CoG;
-    rear_n = A*r_axle; 
-    
-    steer = u(2,i);
-    if show_wheels
-        clearpoints(fr);
-        clearpoints(fl);
-        clearpoints(rr);
-        clearpoints(rl);
-        cfr = A*[cos(steer) -sin(steer) 0.135; sin(steer) cos(steer) -0.08; 0 0 1]*W;
-        addpoints(fr, cfr(1,:), cfr(2,:))
-        cfl = A*[cos(steer) -sin(steer) 0.135; sin(steer) cos(steer) 0.08; 0 0 1]*W;
-        addpoints(fl, cfl(1,:), cfl(2,:))
-        crr = A*trr;
-        addpoints(rr, crr(1,:), crr(2,:))
-        crl = A*trl;
-        addpoints(rl, crl(1,:), crl(2,:))
-    end
-    
-    clearpoints(h);
-    addpoints(h,pos(1,:),pos(2,:));
-    if show_traj_cog
-        addpoints(traj_cog,CoG_n(1,:),CoG_n(2,:));
-    end
-    
-    if show_traj_r
-        addpoints(traj_r,rear_n(1,:),rear_n(2,:));
-    end
-    
-    waitfor(toc == 0.025);
-    drawnow
-    tic
-end
-end
 % utility functions: singleton-expanded addition and multiplication
 function c = pp(a,b)
 c = bsxfun(@plus,a,b);

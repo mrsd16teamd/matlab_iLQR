@@ -18,9 +18,12 @@ disp(vesc_chatpub)
 
 load('traj.mat')
 
-% Publish interpolated data at double frequency
-u(1,:)=interp1(dt:dt:size(u,2)*dt,u(1,:),dt/2:dt/2:size(u,2)*dt,'spline');
-u(2,:)=interp1(dt:dt:size(u,2)*dt,u(2,:),dt/2:dt/2:size(u,2)*dt,'spline');
+% Interpolat data for double frequency
+th=interp1(dt:dt:size(u,2)*dt,u(1,:),dt/2:dt/2:size(u,2)*dt,'spline');
+st=interp1(dt:dt:size(u,2)*dt,u(2,:),dt/2:dt/2:size(u,2)*dt,'spline');
+u=[th;st];
+
+%% Publish vesc messages
 
 for i=1:size(u,2)
     finalTime = datenum(clock + [0, 0, 0, 0, 0, dt]);
@@ -32,16 +35,19 @@ for i=1:size(u,2)
     end
 end
 
-% Publish Twist messages
+%% Publish Twist messages
 
-% for i=1:size(u,2)
+% pause(5)
+
+for i=1:size(u,2)
 %     finalTime = datenum(clock + [0, 0, 0, 0, 0, dt]);
-%     msg.Linear.X = u(1,i);
-%     msg.Angular.Z = u(2,i);
+    twist_msg.Linear.X = u(1,i);
+    twist_msg.Angular.Z = 2.75*u(2,i);
 %     while datenum(clock) < finalTime
-%         send(twist_chatpub,msg);
+        send(twist_chatpub,twist_msg);
 %     end
-% end
+    pause(dt)
+end
 
 %% Figure of 8 drifting
  
