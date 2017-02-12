@@ -22,15 +22,22 @@ dt      = 0.05;
 x0      = [0;0;0;1;0;0;0;0;0;0];   % initial state
 u0      = .1*randn(2,T);;    % initial controls
 global x_des;
-x_des = [2.5;1.5;pi/2;0;0;0;0;0;0;0];
+x_des = [1;2;pi/2;0;0;0;0;0;0;0];
 Op.lims  = [-1 4;
              -0.8  0.8];
 Op.plot = 0;               % plot the derivatives as well
 
 % prepare the visualization window and graphics callback
+obs = [0.5,0.5; 1,1.5];
+map = robotics.BinaryOccupancyGrid(5,5,10);
+setOccupancy(map,obs,1)
+global costmap;
+costmap = getmap(obs);
+
 figure(9);
 set(gcf,'name','drift car','Menu','none','NumberT','off','KeyPressFcn',@Kpress,'user',0)
 set(gca,'xlim',[-4 4],'ylim',[-4 4],'DataAspectRatio',[1 1 1])
+show(map);
 grid on
 box on
 
@@ -132,8 +139,38 @@ lx = cx*sabs(dist,px);
 % drift prize
 ld = -0.001*(sabs(x(5,:),1)-0.2);
 
-% total cost
-c     = lu + lf + lx + ldu + ld;
+% obstacle cost
+lobs = getmapCost(x(1,:),x(2,:));
+
+c     = lu + lf + lx + ldu + ld + lobs;
+end
+
+function F = getmap(obs)
+Sigma = [.05 0; 0 .05];
+x1 = -2:.1:5; x2 = -2:.1:5;
+[X1,X2] = meshgrid(x1,x2);
+
+F = 0.2*mvnpdf([X1(:) X2(:)],obs(1,:),Sigma);
+for i = 2:size(obs,1)
+    F = F+0.2*mvnpdf([X1(:) X2(:)],obs(i,:),Sigma);
+end
+
+F = reshape(F,length(x2),length(x1));
+surf(x1,x2,F);
+caxis([min(F(:))-.5*range(F(:)),max(F(:))]);
+axis auto equal
+xlabel('x1'); ylabel('x2'); zlabel('Probability Density');
+set(gcf,'name','cost map')
+end
+
+function lobs = getmapCost(x,y)
+global costmap
+x = (round(x,1)+2)*10+1;
+y = (round(y,1)+2)*10+1;
+lobs = zeros(1,length(x));
+for i = 1:length(x)
+    lobs(i) = costmap(y(i),x(i));
+end
 end
 
 function y = sabs(x,p)
@@ -224,8 +261,6 @@ W = [-0.03  -0.03  0.03  0.03  -0.03; -0.015  0.015  0.015  -0.015  -0.015; 1 1 
 CoG = [0;0;1];
 r_axle = [-0.15;0;1];
 h = animatedline(P(1,:),P(2,:));
-axis([-5, 5, -5, 5])
-axis auto equal
 
 if show_traj_cog
     traj_cog = animatedline(CoG(1,:),CoG(2,:),'Color','g');
