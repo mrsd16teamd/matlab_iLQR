@@ -18,9 +18,7 @@ disp(vesc_chatpub)
 
 load('traj.mat')
 
-% Publish interpolated data at double frequency
-u(1,:)=interp1(dt:dt:size(u,2)*dt,u(1,:),dt/2:dt/2:size(u,2)*dt,'spline');
-u(2,:)=interp1(dt:dt:size(u,2)*dt,u(2,:),dt/2:dt/2:size(u,2)*dt,'spline');
+% 
 
 for i=1:size(u,2)
     finalTime = datenum(clock + [0, 0, 0, 0, 0, dt]);
@@ -42,6 +40,9 @@ end
 %         send(twist_chatpub,msg);
 %     end
 % end
+
+% Publish interpolated data at double frequency
+
 
 %% Figure of 8 drifting
  
