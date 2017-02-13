@@ -28,7 +28,7 @@ Op.lims  = [-1 4;
              -0.8  0.8];
 Op.plot = 0;               % plot the derivatives as well
 
-obs = [1.5,0.3;2,2];
+obs = [];
 
 
 % prepare the visualization window and graphics callback
@@ -82,14 +82,16 @@ function F = getMap(obs)
 global x0;
 global x_des;
 
-Sigma = [.05 0; 0 .05];
+if isempty(obs)
+    F = [];
+    return
+end
+
+Sigma = [.08 0; 0 .08];
 x1 = x0(1)-2:.1:x_des(1)+2; x2 = x0(2)-2:.1:x_des(2)+2;
 [X1,X2] = meshgrid(x1,x2);
 
-if exist('obs','var')
-    F = 0.2*mvnpdf([X1(:) X2(:)],obs(1,:),Sigma);
-end
-
+F = 0.2*mvnpdf([X1(:) X2(:)],obs(1,:),Sigma);
 for i = 2:size(obs,1)
     F = F+0.2*mvnpdf([X1(:) X2(:)],obs(i,:),Sigma);
 end

@@ -42,7 +42,7 @@ lx = cx*sabs(dist,px);
 ld = -0.001*(sabs(x(5,:),1)-0.2);
 
 % obstacle cost
-lobs = 3*getmapCost(x(1,:),x(2,:));
+lobs = 5*getmapCost(x(1,:),x(2,:));
 
 % total cost
 c     = lu + lf + lx + ldu + ld + lobs;
@@ -51,6 +51,10 @@ end
 function lobs = getmapCost(x,y)
     global x0;
     global costmap;
+    if isempty(costmap)
+        lobs = 0;
+        return
+    end
     x = (round(x,1)-(x0(1)-2))*10+1;
     y = (round(y,1)-(x0(2)-2))*10+1;
     lobs = zeros(1,length(x));
