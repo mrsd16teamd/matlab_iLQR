@@ -35,6 +35,16 @@ for i=1:size(u,2)
     end
 end
 
+
+% % Debug script
+% while(1)
+%     vesc_msg.Data = -1664*1;   % Throttle
+%     twist_msg.Angular.Z = 0.4;   % Steering
+%     send(twist_chatpub,twist_msg);
+%     send(vesc_chatpub,vesc_msg);
+%     pause(0.05);
+% end
+
 %% Publish Twist messages
 
 % pause(5)
@@ -46,37 +56,6 @@ for i=1:size(u,2)
 %     while datenum(clock) < finalTime
         send(twist_chatpub,twist_msg);
 %     end
-    pause(dt)
-end
-
-%% Figure of 8 drifting
- 
-for i=1:size(u,2)
-    twist_msg.Angular.Z =-1;
-    vesc_msg.Data = -1664*4;
-    send(twist_chatpub,twist_msg);
-    send(vesc_chatpub,vesc_msg);
-    pause(dt/2)
-end
-for i=1:size(u,2)
-    twist_msg.Angular.Z =1;
-    vesc_msg.Data = -1664*4;
-    send(twist_chatpub,twist_msg);
-    send(vesc_chatpub,vesc_msg);
-    pause(dt/2)
-end
-
-%% SysID experiment: 
-%  Tire Stiffness (Steering ramp)
- 
-time_horizon = 5;
-steer_angles = linspace(0,0.96,time_horizon/dt);
-vesc_msg.Data = -1664*0.5;  % Vx
- 
-for i=1:length(steer_angles)
-    twist_msg.Angular.Z = steer_angles(i);
-    send(twist_chatpub,twist_msg);
-    send(vesc_chatpub,vesc_msg);
     pause(dt)
 end
 
