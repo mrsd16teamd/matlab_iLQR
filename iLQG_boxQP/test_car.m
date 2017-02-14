@@ -28,7 +28,7 @@ Op.lims  = [-1 4;
              -0.8  0.8];
 Op.plot = 0;               % plot the derivatives as well
 
-obs = [];
+obs = [1,0.25];
 
 
 % prepare the visualization window and graphics callback

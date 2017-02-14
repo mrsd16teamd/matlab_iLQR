@@ -20,7 +20,7 @@ px  = [.01 .01 .1]';             % smoothness scales for running cost
 
 % control cost
 lu    = cu*u.^2;
-ldu   = 100*cdu*x(9:10,:).^2; %cdu*x(9:10,:).^2; Smoother curve?
+ldu   = 50*cdu*x(9:10,:).^2; %cdu*x(9:10,:).^2; Smoother curve?
 
 % final cost
 if any(final)
@@ -42,7 +42,7 @@ lx = cx*sabs(dist,px);
 ld = -0.001*(sabs(x(5,:),1)-0.2);
 
 % obstacle cost
-lobs = 5*getmapCost(x(1,:),x(2,:));
+lobs = 15*getmapCost(x(1,:),x(2,:));
 
 % total cost
 c     = lu + lf + lx + ldu + ld + lobs;
