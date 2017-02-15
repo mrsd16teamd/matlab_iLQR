@@ -1,4 +1,4 @@
-function test_car
+function [x,u] = test_car
 % A demo of iLQG/DDP with car-parking dynamics
 clc;
 close all
@@ -16,42 +16,50 @@ full_DDP = false;
 % set up the optimization problem
 DYNCST  = @(x,u,i) car_dyn_cst(x,u,full_DDP);
 global T;
-T       = 40;              % horizon
+% T       = 40;              % horizon
 global dt;
-dt      = 0.05;
+% dt      = 0.05;
 global x0;
-x0      = [0;0;0;1;0;0;0;0;0;0];   % initial state
-u0      = .1*randn(2,T);    % initial controls
+% x0      = [0;0;0;1;0;0;0;0;0;0];   % initial state
+global u0;
+% u0      = .1*randn(2,T);    % initial controls
 global x_des;
-x_des = [2.5;1.5;pi/2;0;0;0;0;0;0;0];
+% x_des = [2.5;1.5;pi/2;0;0;0;0;0;0;0];
 Op.lims  = [-1 4;
              -0.8  0.8];
 Op.plot = 0;               % plot the derivatives as well
+Op.maxIter = 30;
 
-obs = [1,0.25];
+global obs;
+% obs = [1,0.25];
 
 
 % prepare the visualization window and graphics callback
-figure(9);
-set(gcf,'name','drift car','Menu','none','NumberT','off','KeyPressFcn',@Kpress,'user',0)
-set(gca,'xlim',[-4 4],'ylim',[-4 4],'DataAspectRatio',[1 1 1])
+figure(9)
+set(gcf,'name','drift car','KeyPressFcn',@Kpress,'user',0)
+set(figure(9),'closer','') 
+% set(gca,'xlim',[-4 4],'ylim',[-4 4],'DataAspectRatio',[1 1 1])
 grid on
 box on
+hold all
 global costmap;
 costmap = getMap(obs);
 
 % plot target configuration with light colors
-figure(9);
 P = [-0.15  -0.15  0.15  0.15  -0.15; -0.08  0.08  0.08  -0.08  -0.08; 1 1 1 1 1];
+start_x = x0(1);
+start_y = x0(2);
+start_phi = wrapToPi(x0(3));
 tar_x = x_des(1);
 tar_y = x_des(2);
 tar_phi = wrapToPi(x_des(3));
-A = [cos(tar_phi) -sin(tar_phi) tar_x; sin(tar_phi) cos(tar_phi) tar_y; 0 0 1];
-tar = A*P;
+start_A = [cos(start_phi) -sin(start_phi) start_x; sin(start_phi) cos(start_phi) start_y; 0 0 1];
+tar_A = [cos(tar_phi) -sin(tar_phi) tar_x; sin(tar_phi) cos(tar_phi) tar_y; 0 0 1];
+start = start_A*P;
+tar = tar_A*P;
 axis auto equal
-axis([-2, 3, -2, 3])
-line(P(1,:),P(2,:),'color','b','linewidth',2);
-line(tar(1,:),tar(2,:),'color','b','linewidth',2);
+plot(start(1,:),start(2,:),'color','b','linewidth',2);
+plot(tar(1,:),tar(2,:),'color','r','linewidth',2);
 
 % prepare and install trajectory visualization callback
 line_handle = line([0 0],[0 0],'color','b','linewidth',1.5);
@@ -68,6 +76,7 @@ end
 
 function stop = traj_plot(x,line_handle)
 set(line_handle,'Xdata',x(1,:),'Ydata',x(2,:));
+title('Optimizing Trajectory');
 stop = get(figure(9),'user');
 drawnow;
 end
@@ -97,14 +106,10 @@ for i = 2:size(obs,1)
 end
 
 F = reshape(F,length(x2),length(x1));
-figure(9)
+figure(9);
 surf(x1,x2,F-5);
 colormap(flipud(gray));
 view(2);
-
-figure(1)
-surf(x1,x2,F);
-
 end
 
 function y = car_dynamics(X,u)

@@ -190,7 +190,7 @@ t_start     = tic;
 if verbosity > 0
     fprintf('\n=========== begin iLQG ===========\n');
 end
-graphics(Op.plot,x,u,cost,zeros(m,n,N),[],[],[],[],[],[],trace,1);
+% graphics(Op.plot,x,u,cost,zeros(m,n,N),[],[],[],[],[],[],trace,1);
 for iter = 1:Op.maxIter
     if stop
         break;
@@ -348,7 +348,7 @@ for iter = 1:Op.maxIter
     trace(iter).improvement = dcost;
     trace(iter).cost        = sum(cost(:));
     trace(iter).reduc_ratio = z;
-    stop = stop || graphics(Op.plot,x,u,cost,L,Vx,Vxx,fx,fxx,fu,fuu,trace(1:iter),0);
+    stop = stop;% || graphics(Op.plot,x,u,cost,L,Vx,Vxx,fx,fxx,fu,fuu,trace(1:iter),0);
 end
 
 % save lambda/dlambda
@@ -394,7 +394,7 @@ if ~isempty(iter)
     end
     trace    = trace(~isnan([trace.iter]));
 %     timing   = [diff_t back_t fwd_t total_t-diff_t-back_t-fwd_t];
-    graphics(Op.plot,x,u,cost,L,Vx,Vxx,fx,fxx,fu,fuu,trace,2); % draw legend
+%     graphics(Op.plot,x,u,cost,L,Vx,Vxx,fx,fxx,fu,fuu,trace,2); % draw legend
 else
     error('Failure: no iterations completed, something is wrong.')
 end
