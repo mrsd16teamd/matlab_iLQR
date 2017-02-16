@@ -1,4 +1,5 @@
 %% Subscribe and record specific topic for SysID experiments
+% Run this whole script, not by section!
 
 function sys_id_record
 
@@ -49,11 +50,13 @@ while ~KEY_IS_PRESSED
       drawnow
 end
 
-disp('done')
+disp('Done, saving mat file...')
+close all;
 
 file_name = ['stateData',datestr(now,'_mm-dd-yy_HH:MM')];
 save([file_name,'.mat'],'stateData');
 
+rosshutdown
 
 end
 
