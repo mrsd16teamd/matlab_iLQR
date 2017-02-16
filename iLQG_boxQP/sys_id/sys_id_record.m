@@ -43,9 +43,10 @@ set(gcf, 'KeyPressFcn', @myKeyPressFcn)
 
 disp('Press SPACE to stop recording')
 
+odom_sub.NewMessageFcn = {@odom_sub_callback,amcl_sub,twist_sub};
+
 while ~KEY_IS_PRESSED
       drawnow
-      odom_sub.NewMessageFcn = {@odom_sub_callback,amcl_sub,twist_sub};
 end
 
 disp('done')
@@ -53,6 +54,44 @@ disp('done')
 file_name = ['stateData',datestr(now,'_mm-dd-yy_HH:MM')];
 save([file_name,'.mat'],'stateData');
 
+
+end
+
+function odom_sub_callback(~,odom_msg,amcl_sub,twist_sub)
+
+global stateData
+
+% stateData is a struct with 3 fields:
+% Header
+% X = [x,y,theta,vx,vy,wz]
+% U = [steer,throttle]
+
+
+amcl_msg = amcl_sub.LatestMessage;
+twist_msg = twist_sub.LatestMessage;
+
+vx = odom_msg.Twist.Twist.Linear.X;
+vy = odom_msg.Twist.Twist.Linear.Y;
+wz = odom_msg.Twist.Twist.Angular.Z;
+
+x = amcl_msg.Pose.Pose.Position.X;
+y = amcl_msg.Pose.Pose.Position.Y;
+
+qx = amcl_msg.Pose.Pose.Orientation.X;
+qy = amcl_msg.Pose.Pose.Orientation.Y;
+qz = amcl_msg.Pose.Pose.Orientation.Z;
+qw = amcl_msg.Pose.Pose.Orientation.W;
+ori = quat2eul([qw,qx,qy,qz]);
+theta = ori(1);
+
+throttle = twist_msg.Twist.Linear.X;
+steer = twist_msg.Twist.Angular.Z;
+
+state.Header = twist_msg.Header;
+state.X = [x,y,theta,vx,vy,wz];
+state.U = [throttle,steer];
+
+stateData = [stateData;state];
 
 end
 
