@@ -85,6 +85,9 @@ function Kpress(src,evnt)
 if strcmp(evnt.Key,'space')
     set(src,'user',1)
 end
+if strcmp(evnt.Key,'escape')
+    delete(gcf)
+end
 end
 
 function F = getMap(obs)
