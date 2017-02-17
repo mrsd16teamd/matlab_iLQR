@@ -1,23 +1,33 @@
-% ======== graphics functions for test_car ========
+function sysID_plot% plot state estimate
+load('sys_id/experiments/steer_ramp_1L.mat');
+x = zeros(6,size(stateData,1));
+for i = 1:size(stateData,1)
+    x(:,i) = stateData(i).X';
+end
+% normalize to origin
+x = bsxfun(@minus,x,[x(1,1);x(2,1);x(3,1);0;0;0]);
+u = zeros(2,size(stateData,1));
+figure(1);
+axis([-1,2,-1,2]);
+car_plot(x,u);
+inc_steer_sim();
+end
 
-function car_plot(x,u)
-global T;
-% animate the resulting trajectory
-title('Simulating Control Sequence');
+% input ramp at line 96
+function inc_steer_sim
 show_traj_cog = 1;
-show_traj_r = 0;
+show_traj_r = 1;
 show_wheels = 1;
 
+figure(1)
 P = [-0.15  -0.15  0.15  0.15  -0.15; -0.08  0.08  0.08  -0.08  -0.08; 1 1 1 1 1];
 W = [-0.03  -0.03  0.03  0.03  -0.03; -0.015  0.015  0.015  -0.015  -0.015; 1 1 1 1 1];
 CoG = [0;0;1];
 r_axle = [-0.15;0;1];
-h = animatedline(P(1,:),P(2,:),'Color','g');
-axis([-1,2,-1,2])
-axis auto equal
+h = animatedline(P(1,:),P(2,:));
 
 if show_traj_cog
-    traj_cog = animatedline(CoG(1,:),CoG(2,:),'Color','g','linewidth',2);
+    traj_cog = animatedline(CoG(1,:),CoG(2,:),'Color','b','linewidth',2);
 end
 
 if show_traj_r
@@ -34,22 +44,30 @@ if show_wheels
     trl = [1 0 -0.135; 0 1 0.08; 0 0 1]*W;
     rl = animatedline(trl(1,:),trl(2,:));
 end
+axis([-1,2,-1,2])
+axis equal 'auto xy'
 
-u(:,size(x,2))=[0;0];
-tic
-for i=1:size(x,2)
+% --------Initialize Joystick--------
+x = [0;0;0;0;0;0];
+dt = 0.025;
+T = 5.5;
+throttle = 0;
+steer = 0;
+
+traj = zeros(T/dt+1,2);
+i = 1;
+for t = 0:dt:T    
     % ----------------------------------------
     % ----------Update Visualization----------
     % ----------------------------------------
-    pos_x = x(1,i);
-    pos_y = x(2,i);
-    pos_phi = wrapToPi(x(3,i));
+    pos_x = x(1);
+    pos_y = x(2);
+    pos_phi = wrapToPi(x(3));
     A = [cos(pos_phi) -sin(pos_phi) pos_x; sin(pos_phi) cos(pos_phi) pos_y; 0 0 1];
     pos = A*P;
     CoG_n = A*CoG;
     rear_n = A*r_axle; 
     
-    steer = u(2,i);
     if show_wheels
         clearpoints(fr);
         clearpoints(fl);
@@ -74,8 +92,19 @@ for i=1:size(x,2)
     if show_traj_r
         addpoints(traj_r,rear_n(1,:),rear_n(2,:));
     end
-    
     drawnow
-    tic
+    
+    % constant throttle and steering ramp
+    throttle = 1;
+    steer = min(-0.1+t*(1.4/5),0.9); 
+    
+    % ------Calculate Car Dynamics------
+    u = [throttle; steer];
+    new_x = dynamics_finite(x, u, dt);
+    x = new_x;
+    
+    traj(i,:) = double(x(1:2));
+    i = i+1;
 end
 end
+
