@@ -1,16 +1,19 @@
+% You'll have to add sys_id folder to path by right-clicking it for this to work
+% Run this from iLQG_boxQP folder
+
 function sys_id()
 
 global stateData;
 global params_to_optimize default_params;
 
-load('stateData_02-16-17_16-44.mat');
+load('sys_id/experiments/steer_ramp_4L.mat');
 disp('Loaded data.');
 
 %%%%%
 % params = [C_alpha, C_x, Iz, mu, mu_spin]
 params_to_optimize = [1, 1, 1, 1, 1];
-ALG = 1; % 1 = CMA-ES, 2 = fmincon, 3 = fminsearch, 4, = fminunc
-max_f_evals = 100;
+ALG = 3; % 1 = CMA-ES, 2 = fmincon, 3 = fminsearch, 4, = fminunc
+max_f_evals = 10000;
 
 % Best methods so far: 3
 %%%%

@@ -21,7 +21,7 @@ end
 %% Initialize Subscribers
 
 amcl_sub = rossubscriber('/amcl_pose_echo', 'geometry_msgs/PoseWithCovarianceStamped', 'BufferSize', 10);
-twist_sub = rossubscriber('/cmd_vel_stamped', 'geometry_msgs/TwistStamped', 'BufferSize', 10);
+twist_sub = rossubscriber('/cmd_vel', 'geometry_msgs/Twist', 'BufferSize', 10);
 odom_sub = rossubscriber('/odometry/filtered', 'nav_msgs/Odometry', 'BufferSize',10);
 
 odom_msg = odom_sub.LatestMessage;
@@ -53,7 +53,8 @@ end
 disp('Done, saving mat file...')
 close all;
 
-file_name = ['stateData',datestr(now,'_mm-dd-yy_HH:MM')];
+% file_name = ['stateData',datestr(now,'_mm-dd-yy_HH:MM')];
+file_name = 'steer_ramp_4R';
 save([file_name,'.mat'],'stateData');
 
 rosshutdown
@@ -87,10 +88,10 @@ qw = amcl_msg.Pose.Pose.Orientation.W;
 ori = quat2eul([qw,qx,qy,qz]);
 theta = ori(1);
 
-throttle = twist_msg.Twist.Linear.X;
-steer = twist_msg.Twist.Angular.Z;
+throttle = twist_msg.Linear.X;
+steer = twist_msg.Angular.Z;
 
-state.Header = twist_msg.Header;
+state.Header = odom_msg.Header;
 state.X = [x,y,theta,vx,vy,wz];
 state.U = [throttle,steer];
 
