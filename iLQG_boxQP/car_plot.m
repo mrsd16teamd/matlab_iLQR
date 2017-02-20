@@ -1,11 +1,11 @@
 % ======== graphics functions for test_car ========
 
-function car_plot(x,u)
+function car_plot(x,u,color)
 global T;
 % animate the resulting trajectory
 title('Simulating Control Sequence');
 show_traj_cog = 1;
-show_traj_r = 0;
+show_traj_r = 1;
 show_wheels = 1;
 
 P = [-0.15  -0.15  0.15  0.15  -0.15; -0.08  0.08  0.08  -0.08  -0.08; 1 1 1 1 1];
@@ -17,7 +17,11 @@ axis([-1,2,-1,2])
 axis auto equal
 
 if show_traj_cog
-    traj_cog = animatedline(CoG(1,:),CoG(2,:),'Color','g','linewidth',2);
+    if ~exist('color','var')
+        traj_cog = animatedline(CoG(1,:),CoG(2,:),'Color','g','linewidth',2);
+    else
+        traj_cog = animatedline(CoG(1,:),CoG(2,:),'Color',color,'linewidth',2);
+    end
 end
 
 if show_traj_r
