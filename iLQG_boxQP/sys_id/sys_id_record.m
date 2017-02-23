@@ -3,7 +3,7 @@
 
 function sys_id_record
 
-tx1 = rosdevice('192.168.1.118','ubuntu','ubuntu');
+% tx1 = rosdevice('192.168.1.118','ubuntu','ubuntu');
 
 %% Initialize Global ROS node if not already active
 try
@@ -54,7 +54,7 @@ disp('Done, saving mat file...')
 close all;
 
 % file_name = ['stateData',datestr(now,'_mm-dd-yy_HH:MM')];
-file_name = 'steer_ramp_4R';
+file_name = 'ramp_3right_v2';
 save([file_name,'.mat'],'stateData');
 
 rosshutdown
