@@ -1,69 +1,110 @@
-c_x = 25:35;
-c_a = 15:25;
-Iz = 0.021;
-mu = 0.57;
+c_x = 48:52;
+c_a = 35:39;
+Iz = 0.022;
+mu = 0.70:0.01:0.80;
 mu_spin = 0.20;
 
-ramp = 0.16;
+all_comb = combvec(c_x,c_a,Iz,mu,mu_spin);
 
-all_comb = combvec(c_x,c_a,Iz,mu,mu_spin,ramp);
+load('sys_id/experiments/round2/ramp_1left.mat');
+x_1L = zeros(6,size(stateData,1));
+for i = 1:size(stateData,1)
+    x_1L(:,i) = stateData(i).X';
+end
+% normalize to origin
+theta = -x_1L(3,1);
+x_1L = bsxfun(@minus,x_1L,[x_1L(1,1);x_1L(2,1);x_1L(3,1);0;0;0]);
+R = [cos(theta) -sin(theta); sin(theta) cos(theta)];
+x_1L(1:2,:) = R*x_1L(1:2,:);
 
-% load('sys_id/experiments/steer_ramp_1L.mat');
-% x_1L = zeros(6,size(stateData,1));
-% for i = 1:size(stateData,1)
-%     x_1L(:,i) = stateData(i).X';
-% end
-% % normalize to origin
-% x_1L = bsxfun(@minus,x_1L,[x_1L(1,1);x_1L(2,1);x_1L(3,1);0;0;0]);
-
-load('sys_id/experiments/steer_ramp_2L.mat');
+load('sys_id/experiments/round2/ramp_2left_v3.mat');
 x_2L = zeros(6,size(stateData,1));
 for i = 1:size(stateData,1)
     x_2L(:,i) = stateData(i).X';
 end
 % normalize to origin
+theta = -x_2L(3,1);
 x_2L = bsxfun(@minus,x_2L,[x_2L(1,1);x_2L(2,1);x_2L(3,1);0;0;0]);
+R = [cos(theta) -sin(theta); sin(theta) cos(theta)];
+x_2L(1:2,:) = R*x_2L(1:2,:);
 
-load('sys_id/experiments/steer_ramp_3L.mat');
+load('sys_id/experiments/round2/ramp_3left.mat');
 x_3L = zeros(6,size(stateData,1));
 for i = 1:size(stateData,1)
     x_3L(:,i) = stateData(i).X';
 end
 % normalize to origin
+theta = -x_3L(3,1);
 x_3L = bsxfun(@minus,x_3L,[x_3L(1,1);x_3L(2,1);x_3L(3,1);0;0;0]);
+R = [cos(theta) -sin(theta); sin(theta) cos(theta)];
+x_3L(1:2,:) = R*x_3L(1:2,:);
 
-load('sys_id/experiments/steer_ramp_4L.mat');
-x_4L = zeros(6,size(stateData,1));
+load('sys_id/experiments/round2/ramp_1right.mat');
+x_1R = zeros(6,size(stateData,1));
 for i = 1:size(stateData,1)
-    x_4L(:,i) = stateData(i).X';
+    x_1R(:,i) = stateData(i).X';
 end
 % normalize to origin
-x_4L = bsxfun(@minus,x_4L,[x_4L(1,1);x_4L(2,1);x_4L(3,1);0;0;0]);
+theta = -x_1R(3,1);
+x_1R = bsxfun(@minus,x_1R,[x_1R(1,1);x_1R(2,1);x_1R(3,1);0;0;0]);
+R = [cos(theta) -sin(theta); sin(theta) cos(theta)];
+x_1R(1:2,:) = R*x_1R(1:2,:);
+x_1R(2:3,:) = -x_1R(2:3,:);
+
+load('sys_id/experiments/round2/ramp_2right.mat');
+x_2R = zeros(6,size(stateData,1));
+for i = 1:size(stateData,1)
+    x_2R(:,i) = stateData(i).X';
+end
+% normalize to origin
+theta = -x_2R(3,1);
+x_2R = bsxfun(@minus,x_2R,[x_2R(1,1);x_2R(2,1);x_2R(3,1);0;0;0]);
+R = [cos(theta) -sin(theta); sin(theta) cos(theta)];
+x_2R(1:2,:) = R*x_2R(1:2,:);
+x_2R(2:3,:) = -x_2R(2:3,:);
+
+load('sys_id/experiments/round2/ramp_3right_v2.mat');
+x_3R = zeros(6,size(stateData,1));
+for i = 1:size(stateData,1)
+    x_3R(:,i) = stateData(i).X';
+end
+% normalize to origin
+theta = -x_3R(3,1);
+x_3R = bsxfun(@minus,x_3R,[x_3R(1,1);x_3R(2,1);x_3R(3,1);0;0;0]);
+R = [cos(theta) -sin(theta); sin(theta) cos(theta)];
+x_3R(1:2,:) = R*x_3R(1:2,:);
+x_3R(2:3,:) = -x_3R(2:3,:);
 
 min_cm = inf;
 h = waitbar(0);
 for i = 1:length(all_comb)
-    param = all_comb(1:5,i);
-    ramp = all_comb(6,i);
-%     [sim_x_1L, sim_u] = inc_steer_sim(1,1,ramp,param);
-    [sim_x_2L, sim_u] = inc_steer_sim(2,1,0.20,param);
-    [sim_x_3L, sim_u] = inc_steer_sim(3,1,ramp,param);
-    [sim_x_4L, sim_u] = inc_steer_sim(4,1,ramp,param);
+    param = all_comb(:,i);
+    [sim_x_1L, sim_u] = inc_steer_sim(1,1,5,param);
+    [sim_x_2L, sim_u] = inc_steer_sim(2,1,2,param);
+    [sim_x_3L, sim_u] = inc_steer_sim(3,1,2,param);
     
-%     P = sim_x_1L(1:2,:).';
-%     Q = x_1L(1:2,:).';
-%     cm = DiscreteFrechetDist(P,Q);
+    P = sim_x_1L(1:2,:).';
+    Q = x_1L(1:2,:).';
+    cm = DiscreteFrechetDist(P,Q);
     
     P = sim_x_2L(1:2,:).';
     Q = x_2L(1:2,:).';
-    cm = DiscreteFrechetDist(P,Q);
+    cm = cm + DiscreteFrechetDist(P,Q);
     
     P = sim_x_3L(1:2,:).';
     Q = x_3L(1:2,:).';
     cm = cm + DiscreteFrechetDist(P,Q);
+
+    P = sim_x_1L(1:2,:).';
+    Q = x_1R(1:2,:).';
+    cm = cm + DiscreteFrechetDist(P,Q);
     
-    P = sim_x_4L(1:2,:).';
-    Q = x_4L(1:2,:).';
+    P = sim_x_2L(1:2,:).';
+    Q = x_2R(1:2,:).';
+    cm = cm + DiscreteFrechetDist(P,Q);
+    
+    P = sim_x_3L(1:2,:).';
+    Q = x_3R(1:2,:).';
     cm = cm + DiscreteFrechetDist(P,Q);
     
     if cm < min_cm
@@ -71,5 +112,6 @@ for i = 1:length(all_comb)
         min_cm = cm;
     end
     percent = double(i)/length(all_comb);
-    waitbar(percent,h,sprintf('%f ', min_comb));
+    waitbar(percent,h,sprintf('%.2f ', min_comb));
 end
+
