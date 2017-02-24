@@ -9,24 +9,25 @@ x0      = [0;0;0;0;0;0;0;0;0;0];   % initial state
 global u0;
 u0      = .1*randn(2,T);    % initial controls
 global x_des;
-x_des = [10;5;pi/2;0;0;0;0;0;0;0];
+x_des = [3;3;pi/2;0;0;0;0;0;0;0];
 global obs;
 obs = [];
 
 global u;
-def_param = [330,300,0.020,0.51,0.42];
+def_param = [28,19,0.021,0.57,0.20];
 
-a = 0.8;
-b = 1.2;
-r = (b-a).*rand(1,5) + a;
+a = 0.05;
+b = 1;
+r = a.*randn(1,5) + b;
 param = def_param.*r;
 
 setup_plot();
-for i = 1:5
+while pdist([x0(1:2)';x_des(1:2)']) > 0.15
     [x,u] = test_car;
-    x0 = [rerun(x0,u(:,1:T/2),param);x(9:10,T/2+1)];
+    x0 = [rerun(x0,u(:,1:T/2));x(9:10,T/2+1)];
     u0 = [u(:,T/2+1:end),.1*randn(2,T/2)];   
 end
+x0 = [rerun(x0,zeros(2,20));x(9:10,T/2+1)];
 
 set(gcf,'closer','closereq')
 end
