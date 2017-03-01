@@ -18,10 +18,11 @@ disp(twist_chatpub)
 
 %%  Tire Stiffness Experiment (Steering Ramp)
  
-dt = 0.01; % Publish period
+dt = 0.05; % Publish period
 time_horizon = 2;
-steer_angles = -linspace(0,0.76,time_horizon/dt);   % -0.68,+0.76. R, L
-lin_vel = 1;
+steer_angles = linspace(0,0.76 ,time_horizon/dt); %left steer
+% steer_angles = -linspace(0,0.68 ,time_horizon/dt); % right steer
+lin_vel = 4;
 
 for i=1:length(steer_angles)
     twist_msg.Angular.Z = steer_angles(i);
@@ -30,7 +31,6 @@ for i=1:length(steer_angles)
     pause(dt)
 end
 
-% Send zero to ensure robot stops at end
 twist_msg.Linear.X = 0;
 twist_msg.Angular.Z = 0;
 send(twist_chatpub,twist_msg);
@@ -39,7 +39,6 @@ ctrl_ip = [repmat(lin_vel,1,length(steer_angles));steer_angles];
 
 file_name = ['steer_ramp',datestr(now,'_mm-dd-yy_HH:MM')];
 save([file_name,'.mat'],'dt','time_horizon','ctrl_ip');
-disp('done');
 
 %% Launch Acceleration Experiment
 
@@ -58,6 +57,8 @@ end
 
 % file_name = ['launch',datestr(now,'_mm-dd-yy_HH:MM')];
 % save([file_name,'.mat'],'time_horizon','lin_vel');
+
+rosshutdown
 
 %% Donuts/Figure of 8 drifting
  
@@ -89,3 +90,5 @@ end
 twist_msg.Linear.X = 0;
 twist_msg.Angular.Z = 0;
 send(twist_chatpub,twist_msg);
+
+% rosshutdown
