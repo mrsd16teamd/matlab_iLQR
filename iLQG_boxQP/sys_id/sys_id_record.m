@@ -2,9 +2,6 @@
 % Run this whole script, not by section!
 
 function sys_id_record
-
-% tx1 = rosdevice('192.168.1.118','ubuntu','ubuntu');
-
 %% Initialize Global ROS node if not already active
 try
     rosinit('http://192.168.1.118:11311')
@@ -54,7 +51,7 @@ disp('Done, saving mat file...')
 close all;
 
 % file_name = ['stateData',datestr(now,'_mm-dd-yy_HH:MM')];
-file_name = 'ramp_3right_v2';
+file_name = 'ramp4_Left';
 save([file_name,'.mat'],'stateData');
 
 rosshutdown

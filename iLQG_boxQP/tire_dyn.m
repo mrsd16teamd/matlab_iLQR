@@ -1,5 +1,5 @@
 function [Fx,Fy] = tire_dyn_test(Ux, Ux_cmd, mu, mu_slide, Fz, C_x, C_alpha, alpha)
-%#codegen
+
     % longitude wheel slip
     if (Ux_cmd == Ux)
         K = 0;
