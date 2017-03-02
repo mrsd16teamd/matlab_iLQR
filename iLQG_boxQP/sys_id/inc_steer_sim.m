@@ -6,12 +6,17 @@ x = [0;0;0;0;0;0];
 sim_x = x;
 sim_u = [0;0];
 dt = 0.05;
-rad_s = (7/9 / T)*1.5;
+
+if l_or_r == 1
+    rad_s = (0.76/T);
+else
+    rad_s = (0.69/T);
+end
 
 for t = 0:dt:T      
     % constant throttle and steering ramp
     throttle = thr;
-    steer = l_or_r*min(t*rad_s,7/9); 
+    steer = l_or_r*t*rad_s; 
     
     % ------Calculate Car Dynamics------
     u = [throttle; steer];
