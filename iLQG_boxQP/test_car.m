@@ -1,12 +1,7 @@
 function [x,u] = test_car
-% A demo of iLQG/DDP with car-parking dynamics
-clc;
-close all
-
-fprintf(['\nA demonstration of the iLQG algorithm '...
-'with car parking dynamics.\n'...
-'for details see\nTassa, Mansard & Todorov, ICRA 2014\n'...
-'\"Control-Limited Differential Dynamic Programming\"\n'])
+% A demo of iLQG/DDP for car drifting
+clc; 
+close all;
 
 % Set full_DDP=true to compute 2nd order derivatives of the 
 % dynamics. This will make iterations more expensive, but 
@@ -16,22 +11,22 @@ full_DDP = false;
 % set up the optimization problem
 DYNCST  = @(x,u,i) car_dyn_cst(x,u,full_DDP);
 global T;
-% T       = 40;              % horizon
+T       = 40;              % horizon
 global dt;
-% dt      = 0.05;
+dt      = 0.05;
 global x0;
-% x0      = [0;0;0;1;0;0;0;0;0;0];   % initial state
+x0      = [0;0;0;1;0;0;0;0;0;0];   % initial state
 global u0;
-% u0      = .1*randn(2,T);    % initial controls
+u0      = .5*randn(2,T);    % initial controls
 global x_des;
-% x_des = [2.5;1.5;pi/2;0;0;0;0;0;0;0];
+x_des = [2.5;1.5;pi/2;0;0;0;0;0;0;0];
 Op.lims  = [-1 4;
              -0.8  0.8];
 Op.plot = 0;               % plot the derivatives as well
 Op.maxIter = 30;
 
 global obs;
-% obs = [1,0.25];
+% obs = [1.5,0.5];
 
 
 % prepare the visualization window and graphics callback
@@ -91,6 +86,8 @@ end
 end
 
 function F = getMap(obs)
+% Obstacle costmap helper function
+
 global x0;
 global x_des;
 
@@ -115,6 +112,10 @@ colormap(flipud(gray));
 view(2);
 end
 
+% ----------------------------------------
+% -----------Dynamics and cost------------
+% ----------------------------------------
+
 function y = car_dynamics(X,u)
 s = size(X,2);
 
@@ -131,7 +132,7 @@ for i = 1:size(x,2)
 end
 du = u - pu;
 y = [new_x; u; du];
-end
+end %car_dynamics
 
 function [f,c,fx,fu,fxx,fxu,fuu,cx,cu,cxx,cxu,cuu] = car_dyn_cst(x,u,full_DDP)
 % combine car dynamics and cost
@@ -180,7 +181,11 @@ else
     
     [f,c] = deal([]);
 end
-end
+end %car_dyn_cost
+
+% ----------------------------------------
+% -----------Helper functions-------------
+% ----------------------------------------
 
 function J = finite_difference(fun, x, h)
 % simple finite-difference derivatives
