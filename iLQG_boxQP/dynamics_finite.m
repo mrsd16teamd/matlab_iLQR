@@ -1,6 +1,5 @@
 function [ x_new ] = dynamics_finite( x, u, dt, params)
-%DYNAMICS_FINITE Runge-Kutta integration to discretize dynamics
-%   Detailed explanation goes here
+%DYNAMICS_FINITE 4th order Runge-Kutta integration to discretize dynamics
 
 if ~exist('params','var')
     k1 = dynamics(x, u);

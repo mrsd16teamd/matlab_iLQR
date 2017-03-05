@@ -72,7 +72,7 @@ alpha_R = wrapToPi(alpha_R);
 [Fxr,Fyr] = tire_dyn(Ux, Ux_cmd, mu, mu_spin, G_rear, C_x, C_alpha, alpha_R);
 
 % ----------------------------------------
-% ------------Vehicle Dyanmics------------
+% ------------Vehicle Dynamics------------
 % ----------------------------------------
 % ddx
 r_dot = (a*Fyf*cos(delta)-b*Fyr)/Iz;
