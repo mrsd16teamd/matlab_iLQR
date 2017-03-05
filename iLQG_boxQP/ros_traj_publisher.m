@@ -5,7 +5,7 @@ function ros_traj_publisher(traj_name)
   if nargin < 1
     traj_name = fullfile(which('traj_smooth.mat'));
   end
-  load(traj_name)
+%   load(traj_name)
 
 %% Initialize Global ROS node if not already active
 
@@ -38,12 +38,13 @@ disp(twist_chatpub)
 
 %% Execute iLQG generated trajectory
 %  Frequency same as traj data
+load('saved_trajectories\traj_03-05-17_15_59.mat');
 
 data_freq = 1/dt;
 target_freq = 100;
 scale = target_freq/data_freq;
-
-% Interpolat data for double frequency
+dt = dt/scale;
+% Interpolate data for double frequency
 th=interp1(dt:dt:size(u,2)*dt,u(1,:),dt/scale:dt/scale:size(u,2)*dt,'spline');
 st=interp1(dt:dt:size(u,2)*dt,u(2,:),dt/scale:dt/scale:size(u,2)*dt,'spline');
 u=[th;st];
@@ -53,9 +54,9 @@ u=[th;st];
 % pause(5)
 
 for i=1:size(u,2)    
-    twist_msg.Twist.Linear.X = u(1,i);
-    twist_msg.Twist.Angular.Z = u(2,i);
-    send(twist_chatpub2,twist_msg);
+    twist_msg.Linear.X = u(1,i);
+    twist_msg.Angular.Z = u(2,i);
+    send(twist_chatpub,twist_msg);
     pause(dt)
 end
 

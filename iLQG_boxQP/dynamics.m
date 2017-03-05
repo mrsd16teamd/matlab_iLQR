@@ -17,11 +17,11 @@ a = L-b;            % CoG to front axle
 G_front = m*g*b/L;   % calculated load or specify front rear load directly
 G_rear = m*g*a/L;
 
-C_x = 330;          % longitude stiffness
-C_alpha = 300;      % laternal stiffness
-Iz = 0.02065948883; % roatation inertia
-mu = 5.2/G_rear;   
-mu_spin = 4.3/G_rear; 
+C_x = 50;   %330       % longitude stiffness
+C_alpha = 45; %300      % laternal stiffness
+Iz = 0.045; %0.02065948883 % roatation inertia
+mu = 0.75; %5.2/G_rear   
+mu_spin = 0.2; %4.3/G_rear
 
 if exist('params','var')
     % params = [C_alpha, C_x, Iz, mu, mu_spin]
