@@ -65,7 +65,7 @@ Op.plotFn = plotFn;
 [x,u]= iLQG(DYNCST, x0, u0, Op);
 car_plot(x,u);
 
-file_name = ['traj',datestr(now,'_mm-dd-yy_HH:MM')];
+file_name = ['traj',datestr(now,'_mm-dd-yy_HH_MM')];
 save(['saved_trajectories/',file_name,'.mat'],'x','u','x0','x_des','dt','T');
 end
 
