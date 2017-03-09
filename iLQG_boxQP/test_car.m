@@ -40,7 +40,7 @@ hold all
 global costmap;
 costmap = getMap(obs);
 
-% plot target configuration with light colors
+% Plot target configuration with light colors
 P = [-0.15  -0.15  0.15  0.15  -0.15; -0.08  0.08  0.08  -0.08  -0.08; 1 1 1 1 1];
 start_x = x0(1);
 start_y = x0(2);
@@ -56,18 +56,18 @@ axis auto equal
 plot(start(1,:),start(2,:),'color','b','linewidth',2);
 plot(tar(1,:),tar(2,:),'color','r','linewidth',2);
 
-% prepare and install trajectory visualization callback
+% Prepare and install trajectory visualization callback
 line_handle = line([0 0],[0 0],'color','b','linewidth',1.5);
 plotFn = @(x) traj_plot(x,line_handle);
 Op.plotFn = plotFn;
 
-% === run the optimization!
+% === Run the optimization!
 [x,u]= iLQG(DYNCST, x0, u0, Op);
 car_plot(x,u);
 
 file_name = ['traj',datestr(now,'_mm-dd-yy_HH_MM')];
 save(['saved_trajectories/',file_name,'.mat'],'x','u','x0','x_des','dt','T');
-end
+end %test_car
 
 function stop = traj_plot(x,line_handle)
 set(line_handle,'Xdata',x(1,:),'Ydata',x(2,:));
@@ -127,8 +127,6 @@ new_x = zeros(6,s);
 
 for i = 1:size(x,2)
     new_x(:,i) = dynamics_finite(x(:,i), u(:,i), dt);
-%     sol = ode23(@(t,y) dynamics(y,u(:,i)),[0 dt], x(:,1));
-%     new_x(:,i) = sol.y(:,end);
 end
 du = u - pu;
 y = [new_x; u; du];
@@ -147,12 +145,16 @@ else
     iu = 11:12;
     
     % dynamics first derivatives
+    % J - Jacobian, derivative of states wrt states and control inputs
+    % n x (n+m) x T , where n=dim(x), m=dim(u), T=horizon
     xu_dyn  = @(xu) car_dynamics(xu(ix,:),xu(iu,:));
     J       = finite_difference(xu_dyn, [x; u]);
     fx      = J(:,ix,:);
     fu      = J(:,iu,:);
     
     % dynamics second derivatives
+    % TODO Fix this for our dimensions
+    % JJ - Jacobian of gradient. 
     if full_DDP
         xu_Jcst = @(xu) finite_difference(xu_dyn, xu);
         JJ      = finite_difference(xu_Jcst, [x; u]);

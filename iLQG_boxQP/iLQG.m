@@ -197,15 +197,15 @@ for iter = 1:Op.maxIter
     end
     trace(iter).iter = iter;    
     
-    %====== STEP 1: differentiate dynamics and cost along new trajectory
+    %====== STEP 1: Forward pass, differentiate dynamics and cost along new trajectory
     if flgChange
         t_diff = tic;
-        [~,~,fx,fu,fxx,fxu,fuu,cx,cu,cxx,cxu,cuu]   = DYNCST(x, [u nan(m,1)], 1:N+1);
+        [~,~,fx,fu,fxx,fxu,fuu,cx,cu,cxx,cxu,cuu] = DYNCST(x, [u nan(m,1)], 1:N+1);
         trace(iter).time_derivs = toc(t_diff);
         flgChange   = 0;
     end
     
-    %====== STEP 2: backward pass, compute optimal control law and cost-to-go
+    %====== STEP 2: Backward pass, compute optimal control law and cost-to-go
     backPassDone   = 0;
     while ~backPassDone
         
