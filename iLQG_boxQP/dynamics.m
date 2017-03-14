@@ -47,7 +47,7 @@ Ux_cmd = u(1,:);
 delta = u(2,:);
 
 % ----------------------------------------
-% --------------Tire Dyanmics-------------
+% --------------Tire Dynamics-------------
 % ----------------------------------------
 % lateral slip angle alpha
 if Ux == 0 && Uy == 0   % vehicle is still no slip
