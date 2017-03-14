@@ -1,14 +1,16 @@
-function c = car_cost(x, u)
+function [c, costs] = car_cost(x, u)
 % cost function for car-parking problem
-% sum of 3 terms:
+% sum of terms:
 % lu: quadratic cost on controls
-% lf: final cost on distance from target parking configuration
-% lx: running cost on distance from origin to encourage tight turns
-global x_des;
-global obs2;
+% lf: final cost on state from target state
+% lx: running cost on distance from origin to encourage tight turns, 
+%       also considers final desired velocity
+% ldu: quadratic cost on change in controls
+% ld: small reward for drifting/high angular velocity
+% lobs: static and dynamic obstacle costs
 
-final = isnan(u(1,:));
-u(:,final)  = 0;
+global x_des;
+global obs;
 
 cu  = 1e-2*[.1 .1];         % control cost coefficients
 cdu = 1e-1*[.01 1];         % change in control cost coefficients
@@ -16,54 +18,55 @@ cdu = 1e-1*[.01 1];         % change in control cost coefficients
 cf  = [ 10 10 1 .1 .1 .1];    % final cost coefficients
 pf  = [ .01 .01 .1 .1 .1 .1]';    % smoothness scales for final cost
 
-cx  = 1e-2*[1  1 0.8];          % running cost coefficients
-px  = [.01 .01 .1]';             % smoothness scales for running cost
-
-% control cost
-lu    = cu*u.^2;
-ldu   = 50*cdu*x(9:10,:).^2; %cdu*x(9:10,:).^2; Smoother curve?
+cx  = 1e-1*[5  5 4];          % running cost coefficients 
+cdx = 1e-2*[0.5 0.5 0.2];
+px  = [.01 .01 .1]';   % smoothness scales for running cost
 
 % final cost
+final = isnan(u(1,:));
+u(:,final)  = 0;
 if any(final)
-   dist = x(1:6,final) - x_des(1:6);
+   dist = bsxfun(@minus,x(1:6,final),x_des(1:6));
    llf      = cf*(sabs(dist,pf)+sabs(dist,pf).^2);
-%    llf      = cf*sabs(x(:,final),pf);
    lf       = double(final);
    lf(final)= llf;
 else
    lf    = 0;
 end
 
-% running cost
+% control cost
+lu    = cu*u.^2;
+ldu   = 50*cdu*x(9:10,:).^2; %Smoother curve?
+
+% running cost 
 dist = bsxfun(@minus,x(1:3,:),x_des(1:3));
-lx = cx*sabs(dist,px);
-% lx = cx*sabs(x(1:2,:),px);
+vdist = bsxfun(@minus,x(4:6,:),x_des(4:6));
+lx = cx*sabs(dist,px) + cdx*sabs(vdist,px);
 
 % drift prize
 ld = -0.001*(sabs(x(5,:),1)-0.2);
 
-% lobs = 30*getmapCost(x(1,:),x(2,:));
 %-----------------
 % Testing new obstacle avoidance cost
 % obstacle cost
-k_pos = 0.1;
+k_pos = 0.5;
 k_vel = 0.1;
 d_thres = 0.5;
-if ~isempty(obs2)
-    pos = x(1:2,1); % 2x1
-    vel = x(4:5,1);
-    vec2obs = obs2-pos;
-    dist2obs = norm(vec2obs,2);
+if ~isempty(obs)
+    % pos = x(1:2,:); vel = x(4:5,:);
+    obs_mat = repmat(obs,1,size(x,2));
+    vec2obs = bsxfun(@minus,obs_mat,x(1:2,:));
+    dist2obs = sqrt(sum(vec2obs.^2,1));
+    velnorms = sqrt(sum(x(4:5,:).^2,1));
     
-    if (dist2obs<=d_thres)
-        Ustatic = 0.5*(1/dist2obs - 1/d_thres)^2;
-    else
-        Ustatic = 0;
-    end
+    Ustatic = (1./dist2obs - 1/d_thres).^2;    
+    toofar = dist2obs >= d_thres;
+    Ustatic(toofar) = 0;
     
-    Udynamic = max((vec2obs'*vel)/dist2obs, 0);
-    
-%     disp([Ustatic Udynamic]);
+    Udynamic = diag(vec2obs'*x(4:5,:))'./(dist2obs.*velnorms);
+    neg = Udynamic<0;
+    Udynamic(neg) = 0;
+        
     lobs = k_pos*Ustatic + k_vel*Udynamic;
 else
     lobs = 0;
@@ -73,25 +76,9 @@ end
 
 % total cost
 c     = lu + lf + lx + ldu + ld + lobs;
-end
-
-function lobs = getmapCost(x,y)
-    global x0;
-    global costmap;
-    if isempty(costmap)
-        lobs = 0;
-        return
-    end
-    x = (round(x,1)-(x0(1)-2))*10+1;
-    y = (round(y,1)-(x0(2)-2))*10+1;
-    lobs = zeros(1,length(x));
-    for i = 1:length(x)
-        try
-            lobs(i) = costmap(y(i),x(i));
-        catch ME
-            lobs(i) = 0;
-        end
-    end
+% costs = [lu, lf, lx, ldu, ld, lobs];
+% u:final, f:final, x:state, du:change in control, ld:drift, lobs:obstacle
+% disp(lobs)
 end
 
 % smooth absolute-value function (a.k.a pseudo-Huber)

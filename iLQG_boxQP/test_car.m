@@ -1,4 +1,4 @@
-function [x,u] = test_car
+function [x,u, u0] = test_car
 % A demo of iLQG/DDP for car drifting
 clc; 
 close all;
@@ -14,119 +14,43 @@ global T;
 T       = 50;              % horizon
 global dt;
 dt      = 0.05;
-global x0;
-x0      = [0;0;0;1;0;0;0;0;0;0];   % initial state
+global x0;  %[x,y,theta,vx,vy,w]
+x0      = [0;0;0;3;0;0;0;0;0;0];   % initial state
 global x_des;
-x_des = [2.5;1.5;pi/2;0;0;0;0;0;0;0];
+x_des = [2.5;0;0;2.0;0;0;0;0;0;0];
 
 global u0; % initial controls
 % TODO change this according to x0 and x_des
 u0      = zeros(2,T); % Just setting up shape here
 u0(1,:) = 0.25*randn(1,T) +1; % commanded speed
-u0(2,:) = 0.5*randn(2,T); % steering
+u0(2,:) = 0.5*randn(1,T); % steering
+% u0(2,1:T/2) = 0.3*ones(1,T/2) + 0.1*randn(1,T/2);
+% u0(2,T/2+1:end) = -0.3*ones(1,T/2) + 0.1*randn(1,T/2);
+% load('thru_obs.mat');
 
-Op.lims  = [-1 4;
+Op.lims  = [0.5 4;   
             -0.8  0.8];
 Op.maxIter = 30;
 
-% global obs;
-% obs = [1.5,0.5];
+global obs;
+obs = [1.25; 0.0];
 
-%-----------------
-% Testing new obstacle avoidance cost
-global obs2;
-obs2 = [1.5; 0.25];
+% Initialize plot with start state, goal state, obstacles
+init_plot(x0,x_des,obs);
 
-
-% prepare the visualization window and graphics callback
-figure(9)
-set(gcf,'name','drift car','KeyPressFcn',@Kpress,'user',0)
-set(figure(9),'closer','') 
-% set(gca,'xlim',[-4 4],'ylim',[-4 4],'DataAspectRatio',[1 1 1])
-grid on
-box on
-hold all
-% global costmap;
-% costmap = getMap(obs);
-
-% Plot target configuration with light colors
-P = [-0.15  -0.15  0.15  0.15  -0.15; -0.08  0.08  0.08  -0.08  -0.08; 1 1 1 1 1];
-start_x = x0(1);
-start_y = x0(2);
-start_phi = wrapToPi(x0(3));
-tar_x = x_des(1);
-tar_y = x_des(2);
-tar_phi = wrapToPi(x_des(3));
-start_A = [cos(start_phi) -sin(start_phi) start_x; sin(start_phi) cos(start_phi) start_y; 0 0 1];
-tar_A = [cos(tar_phi) -sin(tar_phi) tar_x; sin(tar_phi) cos(tar_phi) tar_y; 0 0 1];
-start = start_A*P;
-tar = tar_A*P;
-axis auto equal
-plot(start(1,:),start(2,:),'color','b','linewidth',2);
-plot(tar(1,:),tar(2,:),'color','r','linewidth',2);
-
-% Prepare and install trajectory visualization callback
+% Prepare trajectory visualization callback
 line_handle = line([0 0],[0 0],'color','b','linewidth',1.5);
 plotFn = @(x) traj_plot(x,line_handle);
 Op.plotFn = plotFn;
-
-%-----------------
-% Testing new obstacle avoidance cost
-if ~isempty(obs2)
-    plot(obs2(1),obs2(2),'.','Color','r','MarkerSize',50)
-    plot(obs2(1),obs2(2),'o','MarkerSize',150)
-end
 
 % === Run the optimization!
 [x,u]= iLQG(DYNCST, x0, u0, Op);
 car_plot(x,u);
 
-file_name = ['traj',datestr(now,'_mm-dd-yy_HH_MM')];
-save(['saved_trajectories/',file_name,'.mat'],'x','u','x0','x_des','dt','T');
+% file_name = ['traj',datestr(now,'_mm-dd-yy_HH_MM')];
+% save(['saved_trajectories/',file_name,'.mat'],'x','u','x0','x_des','dt','T');
+
 end %test_car
-
-function stop = traj_plot(x,line_handle)
-set(line_handle,'Xdata',x(1,:),'Ydata',x(2,:));
-title('Optimizing Trajectory');
-stop = get(figure(9),'user');
-drawnow;
-end
-
-function Kpress(src,evnt)
-if strcmp(evnt.Key,'space')
-    set(src,'user',1)
-end
-if strcmp(evnt.Key,'escape')
-    delete(gcf)
-end
-end
-
-function F = getMap(obs)
-% Obstacle costmap helper function
-
-global x0;
-global x_des;
-
-if isempty(obs)
-    F = [];
-    return
-end
-
-Sigma = [.08 0; 0 .08];
-x1 = x0(1)-2:.1:x_des(1)+2; x2 = x0(2)-2:.1:x_des(2)+2;
-[X1,X2] = meshgrid(x1,x2);
-
-F = 0.2*mvnpdf([X1(:) X2(:)],obs(1,:),Sigma);
-for i = 2:size(obs,1)
-    F = F+0.2*mvnpdf([X1(:) X2(:)],obs(i,:),Sigma);
-end
-
-F = reshape(F,length(x2),length(x1));
-figure(9);
-surf(x1,x2,F-5);
-colormap(flipud(gray));
-view(2);
-end
 
 % ----------------------------------------
 % -----------Dynamics and cost------------
@@ -205,6 +129,60 @@ end %car_dyn_cost
 % -----------Helper functions-------------
 % ----------------------------------------
 
+function init_plot(x0, x_des,obs)
+% prepare the visualization window and graphics callback
+figure(9)
+set(gcf,'name','drift car','KeyPressFcn',@Kpress,'user',0)
+set(figure(9),'closer','') 
+% set(gca,'xlim',[-4 4],'ylim',[-4 4],'DataAspectRatio',[1 1 1])
+grid on
+box on
+hold all
+
+% Make boxes to represent start and end car poses
+P = [-0.15  -0.15  0.15  0.15  -0.15; -0.08  0.08  0.08  -0.08  -0.08; 1 1 1 1 1];
+start_x = x0(1);
+start_y = x0(2);
+start_phi = wrapToPi(x0(3));
+tar_x = x_des(1);
+tar_y = x_des(2);
+tar_phi = wrapToPi(x_des(3));
+start_A = [cos(start_phi) -sin(start_phi) start_x; sin(start_phi) cos(start_phi) start_y; 0 0 1];
+tar_A = [cos(tar_phi) -sin(tar_phi) tar_x; sin(tar_phi) cos(tar_phi) tar_y; 0 0 1];
+start = start_A*P;
+tar = tar_A*P;
+
+% Plot start and end
+axis auto equal
+plot(start(1,:),start(2,:),'color','b','linewidth',2);
+plot(tar(1,:),tar(2,:),'color','r','linewidth',2);
+
+% Plot obstacle and range at which obstacle cost is imposed
+if ~isempty(obs)
+    plot(obs(1),obs(2),'.','Color','r','MarkerSize',50)
+    plot(obs(1),obs(2),'o','MarkerSize',150)
+end
+end
+
+function stop = traj_plot(x,line_handle)
+set(line_handle,'Xdata',x(1,:),'Ydata',x(2,:));
+title('Optimizing Trajectory');
+stop = get(figure(9),'user');
+drawnow;
+end
+
+function Kpress(src,evnt)
+if strcmp(evnt.Key,'space')
+    set(src,'user',1)
+end
+if strcmp(evnt.Key,'escape')
+    delete(gcf)
+end
+if strcmp(evnt.Key,'c')
+    clf
+end
+end
+
 function J = finite_difference(fun, x, h)
 % simple finite-difference derivatives
 % assumes the function fun() is vectorized
@@ -233,3 +211,5 @@ end
 function c = tt(a,b)
 c = bsxfun(@times,a,b);
 end
+
+
