@@ -22,11 +22,11 @@ x_des = [3;0;0;0;0;0;0;0;0;0];
 global u0; % initial controls
 % TODO change this according to x0 and x_des?
 u0      = zeros(2,T); % Just setting up shape here
-u0(1,:) = 0.25*randn(1,T) +1; % commanded speed
+u0(1,:) = 0.25*randn(1,T) +2; % commanded speed
 u0(2,:) = 0.5*randn(1,T); % steering
 
 Op.lims  = [-1 4;   
-            -0.8  0.8];
+            -0.76  0.68];
 Op.maxIter = 30;
 
 global obs;
