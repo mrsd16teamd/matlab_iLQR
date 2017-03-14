@@ -51,7 +51,7 @@ ld = -0.001*(sabs(x(5,:),1)-0.2);
 % obstacle cost
 k_pos = 0.5;
 k_vel = 0.1;
-d_thres = 0.5;
+d_thres = 0.3;
 if ~isempty(obs)
     % pos = x(1:2,:); vel = x(4:5,:);
     obs_mat = repmat(obs,1,size(x,2));
@@ -76,7 +76,7 @@ end
 
 % total cost
 c     = lu + lf + lx + ldu + ld + lobs;
-% costs = [lu, lf, lx, ldu, ld, lobs];
+costs = [lu, lf, lx, ldu, ld, lobs];
 % u:final, f:final, x:state, du:change in control, ld:drift, lobs:obstacle
 % disp(lobs)
 end

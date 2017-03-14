@@ -15,25 +15,22 @@ T       = 50;              % horizon
 global dt;
 dt      = 0.05;
 global x0;  %[x,y,theta,vx,vy,w]
-x0      = [0;0;0;3;0;0;0;0;0;0];   % initial state
+x0      = [0;0;0;2;0;0;0;0;0;0];   % initial state
 global x_des;
-x_des = [2.5;0;0;2.0;0;0;0;0;0;0];
+x_des = [3;0;0;0;0;0;0;0;0;0];
 
 global u0; % initial controls
-% TODO change this according to x0 and x_des
+% TODO change this according to x0 and x_des?
 u0      = zeros(2,T); % Just setting up shape here
 u0(1,:) = 0.25*randn(1,T) +1; % commanded speed
 u0(2,:) = 0.5*randn(1,T); % steering
-% u0(2,1:T/2) = 0.3*ones(1,T/2) + 0.1*randn(1,T/2);
-% u0(2,T/2+1:end) = -0.3*ones(1,T/2) + 0.1*randn(1,T/2);
-% load('thru_obs.mat');
 
-Op.lims  = [0.5 4;   
+Op.lims  = [-1 4;   
             -0.8  0.8];
 Op.maxIter = 30;
 
 global obs;
-obs = [1.25; 0.0];
+obs = [1.0; 0.0];
 
 % Initialize plot with start state, goal state, obstacles
 init_plot(x0,x_des,obs);
@@ -47,8 +44,8 @@ Op.plotFn = plotFn;
 [x,u]= iLQG(DYNCST, x0, u0, Op);
 car_plot(x,u);
 
-% file_name = ['traj',datestr(now,'_mm-dd-yy_HH_MM')];
-% save(['saved_trajectories/',file_name,'.mat'],'x','u','x0','x_des','dt','T');
+file_name = ['traj',datestr(now,'_mm-dd-yy_HH_MM')];
+save(['saved_trajectories/',file_name,'.mat'],'x','u','x0','x_des','dt','T');
 
 end %test_car
 
@@ -160,7 +157,7 @@ plot(tar(1,:),tar(2,:),'color','r','linewidth',2);
 % Plot obstacle and range at which obstacle cost is imposed
 if ~isempty(obs)
     plot(obs(1),obs(2),'.','Color','r','MarkerSize',50)
-    plot(obs(1),obs(2),'o','MarkerSize',150)
+    plot(obs(1),obs(2),'o','MarkerSize',75)
 end
 end
 
