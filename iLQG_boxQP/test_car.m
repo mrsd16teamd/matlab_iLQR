@@ -11,22 +11,31 @@ full_DDP = false;
 % set up the optimization problem
 DYNCST  = @(x,u,i) car_dyn_cst(x,u,full_DDP);
 global T;
-T       = 40;              % horizon
+T       = 50;              % horizon
 global dt;
 dt      = 0.05;
 global x0;
 x0      = [0;0;0;1;0;0;0;0;0;0];   % initial state
-global u0;
-u0      = .5*randn(2,T);    % initial controls
 global x_des;
 x_des = [2.5;1.5;pi/2;0;0;0;0;0;0;0];
+
+global u0; % initial controls
+% TODO change this according to x0 and x_des
+u0      = zeros(2,T); % Just setting up shape here
+u0(1,:) = 0.25*randn(1,T) +1; % commanded speed
+u0(2,:) = 0.5*randn(2,T); % steering
+
 Op.lims  = [-1 4;
-             -0.8  0.8];
-Op.plot = 0;               % plot the derivatives as well
+            -0.8  0.8];
 Op.maxIter = 30;
 
-global obs;
+% global obs;
 % obs = [1.5,0.5];
+
+%-----------------
+% Testing new obstacle avoidance cost
+global obs2;
+obs2 = [1.5; 0.25];
 
 
 % prepare the visualization window and graphics callback
@@ -37,8 +46,8 @@ set(figure(9),'closer','')
 grid on
 box on
 hold all
-global costmap;
-costmap = getMap(obs);
+% global costmap;
+% costmap = getMap(obs);
 
 % Plot target configuration with light colors
 P = [-0.15  -0.15  0.15  0.15  -0.15; -0.08  0.08  0.08  -0.08  -0.08; 1 1 1 1 1];
@@ -60,6 +69,13 @@ plot(tar(1,:),tar(2,:),'color','r','linewidth',2);
 line_handle = line([0 0],[0 0],'color','b','linewidth',1.5);
 plotFn = @(x) traj_plot(x,line_handle);
 Op.plotFn = plotFn;
+
+%-----------------
+% Testing new obstacle avoidance cost
+if ~isempty(obs2)
+    plot(obs2(1),obs2(2),'.','Color','r','MarkerSize',50)
+    plot(obs2(1),obs2(2),'o','MarkerSize',150)
+end
 
 % === Run the optimization!
 [x,u]= iLQG(DYNCST, x0, u0, Op);

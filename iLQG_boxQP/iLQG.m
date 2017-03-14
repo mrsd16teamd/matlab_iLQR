@@ -190,7 +190,7 @@ t_start     = tic;
 if verbosity > 0
     fprintf('\n=========== begin iLQG ===========\n');
 end
-% graphics(Op.plot,x,u,cost,zeros(m,n,N),[],[],[],[],[],[],trace,1);
+
 for iter = 1:Op.maxIter
     if stop
         break;
@@ -334,7 +334,7 @@ for iter = 1:Op.maxIter
         end     
         
         % terminate ?
-        if lambda > Op.lambdaMax,
+        if lambda > Op.lambdaMax
             if verbosity > 0
                 fprintf('\nEXIT: lambda > lambdaMax\n');
             end
@@ -348,7 +348,7 @@ for iter = 1:Op.maxIter
     trace(iter).improvement = dcost;
     trace(iter).cost        = sum(cost(:));
     trace(iter).reduc_ratio = z;
-    stop = stop;% || graphics(Op.plot,x,u,cost,L,Vx,Vxx,fx,fxx,fu,fuu,trace(1:iter),0);
+    stop = stop;
 end
 
 % save lambda/dlambda

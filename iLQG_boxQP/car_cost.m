@@ -5,6 +5,7 @@ function c = car_cost(x, u)
 % lf: final cost on distance from target parking configuration
 % lx: running cost on distance from origin to encourage tight turns
 global x_des;
+global obs2;
 
 final = isnan(u(1,:));
 u(:,final)  = 0;
@@ -24,7 +25,7 @@ ldu   = 50*cdu*x(9:10,:).^2; %cdu*x(9:10,:).^2; Smoother curve?
 
 % final cost
 if any(final)
-   dist = bsxfun(@minus,x(1:6,final),x_des(1:6));
+   dist = x(1:6,final) - x_des(1:6);
    llf      = cf*(sabs(dist,pf)+sabs(dist,pf).^2);
 %    llf      = cf*sabs(x(:,final),pf);
    lf       = double(final);
@@ -41,8 +42,34 @@ lx = cx*sabs(dist,px);
 % drift prize
 ld = -0.001*(sabs(x(5,:),1)-0.2);
 
+% lobs = 30*getmapCost(x(1,:),x(2,:));
+%-----------------
+% Testing new obstacle avoidance cost
 % obstacle cost
-lobs = 30*getmapCost(x(1,:),x(2,:));
+k_pos = 0.1;
+k_vel = 0.1;
+d_thres = 0.5;
+if ~isempty(obs2)
+    pos = x(1:2,1); % 2x1
+    vel = x(4:5,1);
+    vec2obs = obs2-pos;
+    dist2obs = norm(vec2obs,2);
+    
+    if (dist2obs<=d_thres)
+        Ustatic = 0.5*(1/dist2obs - 1/d_thres)^2;
+    else
+        Ustatic = 0;
+    end
+    
+    Udynamic = max((vec2obs'*vel)/dist2obs, 0);
+    
+%     disp([Ustatic Udynamic]);
+    lobs = k_pos*Ustatic + k_vel*Udynamic;
+else
+    lobs = 0;
+end
+
+%-----------------
 
 % total cost
 c     = lu + lf + lx + ldu + ld + lobs;
