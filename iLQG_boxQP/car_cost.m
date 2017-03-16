@@ -1,4 +1,4 @@
-function [c, costs] = car_cost(x, u)
+function [c] = car_cost(x, u)
 % cost function for car-parking problem
 % sum of terms:
 % lu: quadratic cost on controls
@@ -44,14 +44,14 @@ vdist = bsxfun(@minus,x(4:6,:),x_des(4:6));
 lx = cx*sabs(dist,px) + cdx*sabs(vdist,px);
 
 % drift prize
-ld = -0.001*(sabs(x(5,:),1)-0.2);
+ld = -0.001*(sabs(x(6,:),1)-0.2);
 
-%-----------------
-% Testing new obstacle avoidance cost
-% obstacle cost
+% Dynamic obstacle cost
 k_pos = 0.5;
 k_vel = 0.1;
 d_thres = 0.3;
+
+lobs = 0;
 if ~isempty(obs)
     % pos = x(1:2,:); vel = x(4:5,:);
     obs_mat = repmat(obs,1,size(x,2));
@@ -68,15 +68,11 @@ if ~isempty(obs)
     Udynamic(neg) = 0;
         
     lobs = k_pos*Ustatic + k_vel*Udynamic;
-else
-    lobs = 0;
 end
-
-%-----------------
 
 % total cost
 c     = lu + lf + lx + ldu + ld + lobs;
-costs = [lu, lf, lx, ldu, ld, lobs];
+% costs = [lu, lf, lx, ldu, ld, lobs];
 % u:final, f:final, x:state, du:change in control, ld:drift, lobs:obstacle
 % disp(lobs)
 end

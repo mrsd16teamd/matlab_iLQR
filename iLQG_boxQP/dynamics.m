@@ -67,10 +67,13 @@ end
 % safety that keep alpha in valid range
 alpha_F = wrapToPi(alpha_F);
 alpha_R = wrapToPi(alpha_R);
+% disp([alpha_F, alpha_R]);
+% disp([Ux, Ux_cmd, mu, mu_spin, G_rear, C_x, C_alpha]);
 
 [Fxf,Fyf] = tire_dyn(Ux, Ux, mu, mu_spin, G_front, C_x, C_alpha, alpha_F);
 [Fxr,Fyr] = tire_dyn(Ux, Ux_cmd, mu, mu_spin, G_rear, C_x, C_alpha, alpha_R);
 
+% disp([Fxf, Fyf, Fxr, Fyr])
 % ----------------------------------------
 % ------------Vehicle Dynamics------------
 % ----------------------------------------

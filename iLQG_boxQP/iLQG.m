@@ -69,8 +69,6 @@ function [x, u, L, Vx, Vxx, cost, trace, stop] = iLQG(DYNCST, x0, u0, Op)
 %
 % timing - timing information
 %
-%
-%
 % BIBTeX:
 %
 % @INPROCEEDINGS{
@@ -261,7 +259,6 @@ for iter = 1:Op.maxIter
                 xnew        = xnew(:,:,w);
                 unew        = unew(:,:,w);
             end
-            test=1;
         else            % serial backtracking line-search
             for alpha = Op.Alpha
                 [xnew,unew,costnew]   = forward_pass(x0 ,u+l*alpha, L, x(:,1:N),[],1,DYNCST,Op.lims,Op.diffFn);

@@ -15,15 +15,17 @@ T       = 50;              % horizon
 global dt;
 dt      = 0.05;
 global x0;  %[x,y,theta,vx,vy,w]
-x0      = [0;0;0;2;0;0;0;0;0;0];   % initial state
+x0      = [0;0;0;3;0;0;0;0;0;0];   % initial state
 global x_des;
-x_des = [3;0;0;0;0;0;0;0;0;0];
+x_des = [2;0;0;0;0;0;0;0;0;0];
 
 global u0; % initial controls
 % TODO change this according to x0 and x_des?
 u0      = zeros(2,T); % Just setting up shape here
 u0(1,:) = 0.25*randn(1,T) +2; % commanded speed
-u0(2,:) = 0.5*randn(1,T); % steering
+u0(2,:) = 0.3*randn(1,T); % steering
+% u0(1,:) = 1;
+% u0(2,:) = 0.3;
 
 Op.lims  = [-1 4;   
             -0.76  0.68];
@@ -164,6 +166,7 @@ end
 function stop = traj_plot(x,line_handle)
 set(line_handle,'Xdata',x(1,:),'Ydata',x(2,:));
 title('Optimizing Trajectory');
+xlabel('space:stop optimization, esc:close window, c:clear figure');
 stop = get(figure(9),'user');
 drawnow;
 end

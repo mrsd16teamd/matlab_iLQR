@@ -17,11 +17,6 @@ function [x,result,Hfree,free,trace] = boxQP(H,g,lower,upper,x0,options)
 %     Hfree        - subspace cholesky factor   (n_free * n_free)
 %     free         - set of free dimensions     (n)
 
-if nargin==0
-   demoQP(); % run the built-in demo
-   return;
-end
-
 n        = size(H,1);
 clamped  = false(n,1);
 free     = true(n,1);
