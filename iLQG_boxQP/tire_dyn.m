@@ -21,7 +21,7 @@ function [Fx,Fy] = tire_dyn(Ux, Ux_cmd, mu, mu_slide, Fz, C_x, C_alpha, alpha)
     % alpha > pi/2 cannot be adapted to this formula
     % because of the use of tan(). Use the equivalent angle instead.
     if abs(alpha) > pi/2
-        alpha = (abs(alpha)-pi/2)*sign(alpha);
+        alpha = (pi-abs(alpha))*sign(alpha);
     end
  
     gamma = sqrt(C_x^2*(K/(1+K))^2+C_alpha^2*(tan(alpha)/(1+K))^2);
