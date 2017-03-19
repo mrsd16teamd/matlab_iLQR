@@ -51,7 +51,7 @@ disp('Done, saving mat file...')
 close all;
 
 % file_name = ['stateData',datestr(now,'_mm-dd-yy_HH:MM')];
-file_name = 'ramp4_Left';
+file_name = 'ramp2_Right';
 save([file_name,'.mat'],'stateData');
 
 rosshutdown

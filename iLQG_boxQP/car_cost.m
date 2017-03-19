@@ -12,17 +12,11 @@ function [c] = car_cost(x, u)
 global x_des;
 global obs;
 
-cu  = 1e-2*[.1 .1];         % control cost coefficients
-cdu = 1e-1*[.01 1];         % change in control cost coefficients
-
-cf  = [ 10 10 1 .1 .1 .1];    % final cost coefficients
-pf  = [ .01 .01 .1 .1 .1 .1]';    % smoothness scales for final cost
-
-cx  = 1e-1*[5  5 4];          % running cost coefficients 
-cdx = 1e-2*[0.5 0.5 0.2];
-px  = [.01 .01 .1]';   % smoothness scales for running cost
 
 % final cost
+cf  = [ 1 3 5 10 5 .1];    % final cost coefficients
+pf  = [ .01 .01 .1 .1 .1 .1]';    % smoothness scales for final cost
+
 final = isnan(u(1,:));
 u(:,final)  = 0;
 if any(final)
@@ -34,17 +28,27 @@ else
    lf    = 0;
 end
 
-% control cost
-lu    = cu*u.^2;
-ldu   = 50*cdu*x(9:10,:).^2; %Smoother curve?
 
-% running cost 
+% Control cost
+cu  = 1e-2*[.1 .1];         % control cost coefficients
+cdu = 1e-1*[50 5];         % change in control cost coefficients
+
+lu    = cu*(u-x(4:5,:)).^2;
+ldu   = cdu*x(9:10,:).^2; %Smoother curve?
+
+% Running cost 
+cx  = 1e-1*[5  1 4];          % running cost coefficients 
+cv = 1e-2*[5 0.5 0.2];
+px  = [.01 .01 .1]';   % smoothness scales for running cost
+
 dist = bsxfun(@minus,x(1:3,:),x_des(1:3));
 vdist = bsxfun(@minus,x(4:6,:),x_des(4:6));
-lx = cx*sabs(dist,px) + cdx*sabs(vdist,px);
+lx = cx*sabs(dist,px) + cv*sabs(vdist,px);
 
-% drift prize
-ld = -0.001*(sabs(x(6,:),1)-0.2);
+
+% Drift prize
+ld = -0.001*(sabs(x(5,:),1)-0.2);   
+
 
 % Dynamic obstacle cost
 k_pos = 0.5;
@@ -70,11 +74,9 @@ if ~isempty(obs)
     lobs = k_pos*Ustatic + k_vel*Udynamic;
 end
 
+
 % total cost
 c     = lu + lf + lx + ldu + ld + lobs;
-% costs = [lu, lf, lx, ldu, ld, lobs];
-% u:final, f:final, x:state, du:change in control, ld:drift, lobs:obstacle
-% disp(lobs)
 end
 
 % smooth absolute-value function (a.k.a pseudo-Huber)

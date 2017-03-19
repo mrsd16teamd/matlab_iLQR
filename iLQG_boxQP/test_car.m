@@ -1,6 +1,6 @@
 function [x,u, u0] = test_car
 % A demo of iLQG/DDP for car drifting
-clc; 
+clc; clear;
 close all;
 
 % Set full_DDP=true to compute 2nd order derivatives of the 
@@ -15,24 +15,23 @@ T       = 50;              % horizon
 global dt;
 dt      = 0.05;
 global x0;  %[x,y,theta,vx,vy,w]
-x0      = [0;0;0;3;0;0;0;0;0;0];   % initial state
+x0      = [0;0;0;  3;0;0; 0;0;0;0];   % initial state
 global x_des;
-x_des = [2;0;0;0;0;0;0;0;0;0];
+x_des = [3;0;0; 0;0;0; 0;0;0;0];
 
 global u0; % initial controls
 % TODO change this according to x0 and x_des?
 u0      = zeros(2,T); % Just setting up shape here
-u0(1,:) = 0.25*randn(1,T) +2; % commanded speed
-u0(2,:) = 0.3*randn(1,T); % steering
-% u0(1,:) = 1;
-% u0(2,:) = 0.3;
+u0(1,:) = 0.25*randn(1,T) + 3; % commanded speed
+u0(2,:) = 0.1*randn(1,T);
+% u0(2,:) = 0.3*randn(1,T); % steering
 
-Op.lims  = [-1 4;   
+Op.lims  = [0 4;   
             -0.76  0.68];
 Op.maxIter = 30;
 
 global obs;
-obs = [1.0; 0.0];
+obs = [1; 0];   
 
 % Initialize plot with start state, goal state, obstacles
 init_plot(x0,x_des,obs);

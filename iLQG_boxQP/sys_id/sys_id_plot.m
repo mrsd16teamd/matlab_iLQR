@@ -1,4 +1,4 @@
-function sys_id_plot(param,thr)% plot state estimate
+function sys_id_plot(param,thr) % plot state estimate
 % sys_id_plot(param) to show all ramp trajectories at different speed
 % sys_id_plot(param, thr) to show ramp trajectory at thr m/s
 if ~exist('thr','var')
@@ -16,47 +16,47 @@ if ~exist('thr','var')
     
     return
 elseif thr == 1
-    load('sys_id/experiments/round2/ramp_1left.mat');
+    load('sys_id/experiments/round4/ramp2_Left.mat');
     xL = zeros(6,size(stateData,1));
     for i = 1:size(stateData,1)
         xL(:,i) = stateData(i).X';
     end
     
-    load('sys_id/experiments/round2/ramp_1right.mat');
+    load('sys_id/experiments/round4/ramp2_Right.mat');
     xR = zeros(6,size(stateData,1));
     for i = 1:size(stateData,1)
         xR(:,i) = stateData(i).X';
     end
     
-    [sim_x, sim_u] = inc_steer_sim(1,1,5,param);
+    [sim_x, sim_u] = inc_steer_sim(2,1,5,param);
 elseif thr == 2
-    load('sys_id/experiments/round2/ramp_2left_v3.mat');
+    load('sys_id/experiments/round4/ramp3_Left.mat');
     xL = zeros(6,size(stateData,1));
     for i = 1:size(stateData,1)
         xL(:,i) = stateData(i).X';
     end
     
-    load('sys_id/experiments/round2/ramp_2right.mat');
-    xR = zeros(6,size(stateData,1));
-    for i = 1:size(stateData,1)
-        xR(:,i) = stateData(i).X';
-    end
-    
-    [sim_x, sim_u] = inc_steer_sim(2,1,2,param);
-elseif thr == 3
-    load('sys_id/experiments/round2/ramp_3left.mat');
-    xL = zeros(6,size(stateData,1));
-    for i = 1:size(stateData,1)
-        xL(:,i) = stateData(i).X';
-    end
-    
-    load('sys_id/experiments/round2/ramp_3right_v2.mat');
+    load('sys_id/experiments/round4/ramp3_Right2.mat');
     xR = zeros(6,size(stateData,1));
     for i = 1:size(stateData,1)
         xR(:,i) = stateData(i).X';
     end
     
     [sim_x, sim_u] = inc_steer_sim(3,1,2,param);
+elseif thr == 3
+    load('sys_id/experiments/round4/ramp4_Left1.mat');
+    xL = zeros(6,size(stateData,1));
+    for i = 1:size(stateData,1)
+        xL(:,i) = stateData(i).X';
+    end
+    
+    load('sys_id/experiments/round4/ramp4_Right.mat');
+    xR = zeros(6,size(stateData,1));
+    for i = 1:size(stateData,1)
+        xR(:,i) = stateData(i).X';
+    end
+    
+    [sim_x, sim_u] = inc_steer_sim(4,1,2,param);
 end
 
 
