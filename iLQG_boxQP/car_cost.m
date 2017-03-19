@@ -45,10 +45,8 @@ dist = bsxfun(@minus,x(1:3,:),x_des(1:3));
 vdist = bsxfun(@minus,x(4:6,:),x_des(4:6));
 lx = cx*sabs(dist,px) + cv*sabs(vdist,px);
 
-
 % Drift prize
-ld = -0.001*(sabs(x(5,:),1)-0.2);   
-
+ld = -0.001*(sabs(x(5,:),1)-0.2);
 
 % Dynamic obstacle cost
 k_pos = 0.5;
