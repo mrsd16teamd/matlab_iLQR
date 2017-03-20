@@ -27,10 +27,10 @@ function [Fx,Fy] = tire_dyn(Ux, Ux_cmd, mu, mu_slide, Fz, C_x, C_alpha, alpha)
     gamma = sqrt(C_x^2*(K/(1+K))^2+C_alpha^2*(tan(alpha)/(1+K))^2);
     
     if gamma <= 3*mu*Fz
-        F = gamma - 1/(3*mu*Fz)*gamma^2 + 1/(27*mu^2*Fz^2)*gamma^3;
+        F = gamma - 1/(3*mu*Fz)*(2-mu_slide/mu)*gamma^2 + 1/(9*mu^2*Fz^2)*(1-(2/3)*(mu_slide/mu))*gamma^3;
     else
         % more accurate modeling with peak friction value
-        F = (mu_slide + (mu-mu_slide)/(1 + ((gamma-3*mu*Fz)/27)^2))*Fz;
+        F = mu_slide*Fz;
     end
     
     if gamma == 0
