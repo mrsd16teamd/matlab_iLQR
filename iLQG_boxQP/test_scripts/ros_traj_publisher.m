@@ -5,7 +5,7 @@ function ros_traj_publisher(traj_name)
   if nargin < 1
     traj_name = fullfile(which('traj_smooth.mat'));
   end
-%   load(traj_name)
+  load(traj_name)
 
 %% Initialize Global ROS node if not already active
 
@@ -30,28 +30,27 @@ twist_chatpub2 = rospublisher('/cmd_vel_stamped','geometry_msgs/TwistStamped');
 twist_msg = rosmessage(twist_chatpub);
 twist_msg2 = rosmessage(twist_chatpub2);
 
-% vesc_chatpub = rospublisher('/commands/motor/speed','std_msgs/Float64');
-% vesc_msg = rosmessage(vesc_chatpub);
 disp('Created following pubishers:')
 disp(twist_chatpub)
-% disp(vesc_chatpub)
 
 %% Execute iLQG generated trajectory
 %  Frequency same as traj data
-load('saved_trajectories\traj_03-05-17_15_59.mat');
 
-data_freq = 1/dt;
-target_freq = 100;
-scale = target_freq/data_freq;
-dt = dt/scale;
-% Interpolate data for double frequency
-th=interp1(dt:dt:size(u,2)*dt,u(1,:),dt/scale:dt/scale:size(u,2)*dt,'spline');
-st=interp1(dt:dt:size(u,2)*dt,u(2,:),dt/scale:dt/scale:size(u,2)*dt,'spline');
-u=[th;st];
+dt=0.02;
 
-%% Publish Twist messages
+% % Change publish frequency
+% data_freq = 1/dt;
+% target_freq = 20;
+% scale = target_freq/data_freq;
+% dt = dt/scale;
+% % Interpolate data for double frequency
+% th=interp1(dt:dt:size(u,2)*dt,u(1,:),dt/scale:dt/scale:size(u,2)*dt,'spline');
+% st=interp1(dt:dt:size(u,2)*dt,u(2,:),dt/scale:dt/scale:size(u,2)*dt,'spline');
+% u=[th;st];
 
-% pause(5)
+% % Publish Twist messages
+
+% u(1,78:end) = u(1,78:end) + 0;
 
 for i=1:size(u,2)    
     twist_msg.Linear.X = u(1,i);
@@ -60,7 +59,15 @@ for i=1:size(u,2)
     pause(dt)
 end
 
+twist_msg.Linear.X = 0;
+twist_msg.Angular.Z = 0;
+send(twist_chatpub,twist_msg);
+
 %% Publish vesc messages
+
+% vesc_chatpub = rospublisher('/commands/motor/speed','std_msgs/Float64');
+% vesc_msg = rosmessage(vesc_chatpub);
+% disp(vesc_chatpub)
 
 % for i=1:size(u,2)
 %     finalTime = datenum(clock + [0, 0, 0, 0, 0, dt/scale]);
