@@ -25,13 +25,17 @@ end
 %% Initialize Publishers
 
 twist_chatpub = rospublisher('/cmd_vel','geometry_msgs/Twist');
-twist_chatpub2 = rospublisher('/cmd_vel_stamped','geometry_msgs/TwistStamped');
+% twist_chatpub2 = rospublisher('/cmd_vel_stamped','geometry_msgs/TwistStamped');
 
 twist_msg = rosmessage(twist_chatpub);
-twist_msg2 = rosmessage(twist_chatpub2);
+% twist_msg2 = rosmessage(twist_chatpub2);
 
-disp('Created following pubishers:')
-disp(twist_chatpub)
+traj_chatpub = rospublisher('/traj','nav_msgs/Odometry');
+traj_msg = rosmessage(traj_chatpub);
+
+disp('Created following pubishers:');
+disp(twist_chatpub);
+disp(traj_chatpub);
 
 %% Execute iLQG generated trajectory
 %  Frequency same as traj data
@@ -50,12 +54,17 @@ dt=0.02;
 
 % % Publish Twist messages
 
-% u(1,78:end) = u(1,78:end) + 0;
-
 for i=1:size(u,2)    
     twist_msg.Linear.X = u(1,i);
     twist_msg.Angular.Z = u(2,i);
+        
+    traj_msg.Header.FrameId='/map';
+    traj_msg.Twist.Twist = twist_msg;
+    traj_msg.Pose.Pose.Position.X = x(1,i);
+    traj_msg.Pose.Pose.Position.Y = x(2,i);
+    
     send(twist_chatpub,twist_msg);
+    send(traj_chatpub,traj_msg);
     pause(dt)
 end
 
