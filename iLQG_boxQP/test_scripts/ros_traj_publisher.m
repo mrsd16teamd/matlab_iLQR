@@ -3,7 +3,7 @@
 function ros_traj_publisher(traj_name)
 
   if nargin < 1
-    traj_name = fullfile(which('traj_smooth.mat'));
+    traj_name = fullfile(which('test.mat'));
   end
   load(traj_name)
 
@@ -30,7 +30,7 @@ twist_chatpub = rospublisher('/cmd_vel','geometry_msgs/Twist');
 twist_msg = rosmessage(twist_chatpub);
 % twist_msg2 = rosmessage(twist_chatpub2);
 
-traj_chatpub = rospublisher('/traj','nav_msgs/Odometry');
+traj_chatpub = rospublisher('/traj_sim','nav_msgs/Odometry');
 traj_msg = rosmessage(traj_chatpub);
 
 disp('Created following pubishers:');
@@ -54,6 +54,8 @@ dt=0.02;
 
 % % Publish Twist messages
 
+rate = rosrate(1/dt);
+reset(rate);
 for i=1:size(u,2)    
     twist_msg.Linear.X = u(1,i);
     twist_msg.Angular.Z = u(2,i);
@@ -65,7 +67,7 @@ for i=1:size(u,2)
     
     send(twist_chatpub,twist_msg);
     send(traj_chatpub,traj_msg);
-    pause(dt)
+    waitfor(rate);
 end
 
 twist_msg.Linear.X = 0;
